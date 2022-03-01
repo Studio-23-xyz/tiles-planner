@@ -1,0 +1,27 @@
+body{
+    margin: 0;
+    overflow: hidden;
+}
+
+.wrapper{
+    position: absolute;
+    background: white;
+    font-size: 25px;
+    
+    top: 5%;
+    transition: .5s ease;
+}
+
+.img{
+    z-index: 111111;
+    cursor: pointer;
+    display: block;
+    padding-left: 10px;
+}
+.angel{
+    display: flex;
+    z-index: 111111;
+    cursor: pointer;
+    padding: 10px;
+}
+
