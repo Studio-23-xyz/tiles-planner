@@ -50,15 +50,12 @@ let changeTexture = (textureLink) => {
     if (INTERSECTED.material.map !== null) {
         // castMaterial[1].object.material.map = new THREE.TextureLoader().load('./Paint_Texture.jpg');
         let x = new THREE.TextureLoader().load(textureLink, function (texture) {
-            texture.magFilter = THREE.NearestFilter;
-            texture.minFilter = THREE.LinearFilter;
+            
             texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
             texture.offset.set(0, 0);
             texture.repeat.set(5, 5);
 
-            texture.center.set(0.5, 0.5);
-
-            texture.generateMipmaps = true;
+            
         });
         INTERSECTED.material.map = x;
     } else {
@@ -157,9 +154,9 @@ function init() {
 
     //setup camera
     camera = new THREE.PerspectiveCamera(
-        45,
+        100,
         window.innerWidth / window.innerHeight,
-        1,
+        10,
         1000
     );
 
@@ -219,7 +216,7 @@ function init() {
 
    
 
-    let geometry = new THREE.BoxGeometry(50, 50, 50);
+    let geometry = new THREE.BoxGeometry(50, 50, 0.1);
 
     let mesh = new THREE.Mesh(
         geometry,
@@ -228,16 +225,46 @@ function init() {
             side: THREE.DoubleSide,
         })
     );
+    mesh.position.y = 10;
+    mesh.rotation.x = - Math.PI / 2;
+    scene.add(mesh);
+
+     geometry = new THREE.BoxGeometry(50, 50, 0.1);
+
+     mesh = new THREE.Mesh(
+        geometry,
+        new THREE.MeshStandardMaterial({
+            color: "white",
+            side: THREE.DoubleSide,
+        })
+    );
+    mesh.position.y = -10;
+    mesh.rotation.x = - Math.PI / 2;
 
     scene.add(mesh);
 
-    const box = new THREE.Box3().setFromObject(mesh);
 
-    const boxSize = box.getSize(new THREE.Vector3()).length();
-    const boxCenter = box.getCenter(new THREE.Vector3());
-    const halfSizeToFitOnScreen = boxSize * 0.5;
-    const halfFovY = THREE.Math.degToRad(camera.fov * .5);
-    const distance = halfSizeToFitOnScreen / Math.tan(halfFovY);
+     geometry = new THREE.BoxGeometry(50, 50, 0.1);
+
+     mesh = new THREE.Mesh(
+        geometry,
+        new THREE.MeshStandardMaterial({
+            color: "white",
+            side: THREE.DoubleSide,
+        })
+    );
+    mesh.position.z = -15;
+    
+
+    scene.add(mesh);
+
+    // const box = new THREE.Box3().setFromObject(mesh);
+
+    // const boxSize = box.getSize(new THREE.Vector3()).length();
+    // const boxCenter = box.getCenter(new THREE.Vector3());
+    // const halfSizeToFitOnScreen = boxSize * 0.5;
+    // const halfFovY = THREE.Math.degToRad(camera.fov * .5);
+    // const distance = halfSizeToFitOnScreen / Math.tan(halfFovY);
 
     
 
@@ -282,20 +309,8 @@ function init() {
     controls.screenSpacePanning = false;
     controls.update();
 
-    controls.maxDistance =  25;
+    controls.maxDistance =  100;
 
-
-    // controls = new PointerLockControls(camera, renderer.domElement);
-
-    // // add event listener to show/hide a UI (e.g. the game's menu)
-
-    // controls.addEventListener("lock", function () {
-    //     console.log('lock');
-    // });
-
-    // controls.addEventListener("unlock", function () {
-    //     console.log('unlock');
-    // });
 
     renderer.setAnimationLoop(render);
 
