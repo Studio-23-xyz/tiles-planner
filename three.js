@@ -7,6 +7,8 @@ import { FBXLoader } from "./files/Loader.js";
 import { OBJLoader } from "./files/Loader.js";
 import { Reflector } from "./files/Reflector.js";
 import { PointerLockControls } from "./files/PointerLockControls.js";
+import { RGBELoader } from "https://cdn.jsdelivr.net/gh/mrdoob/three.js@dev/examples/jsm/loaders/RGBELoader.js";
+
 
 //console.log(ARButton);
 let camera,
@@ -175,27 +177,27 @@ function init() {
 
     scene.add(light);
 
-    let DirectionalLightbt = new THREE.DirectionalLight(0xffffff, 0.7);
-    DirectionalLightbt.position.set(3, -8, 1.5);
+    // let DirectionalLightbt = new THREE.DirectionalLight(0xffffff, 0.7);
+    // DirectionalLightbt.position.set(3, -8, 1.5);
 
-    scene.add(DirectionalLightbt);
+    // scene.add(DirectionalLightbt);
 
-    let DirectionalLightside = new THREE.DirectionalLight(0xffffff, 0.5);
-    DirectionalLightside.position.set(7, 8, 0);
+    // let DirectionalLightside = new THREE.DirectionalLight(0xffffff, 0.5);
+    // DirectionalLightside.position.set(7, 8, 0);
 
-    scene.add(DirectionalLightside);
+    // scene.add(DirectionalLightside);
 
-    let DirectionalLightside2 = new THREE.DirectionalLight(0xffffff, 0.5);
-    DirectionalLightside2.position.set(-7, 8, 0);
+    // let DirectionalLightside2 = new THREE.DirectionalLight(0xffffff, 0.5);
+    // DirectionalLightside2.position.set(-7, 8, 0);
 
-    scene.add(DirectionalLightside2);
+    // scene.add(DirectionalLightside2);
 
     rayCast = new THREE.Raycaster();
     mouse = new THREE.Vector2();
     mouse.x = mouse.y = -1;
 
     const GLTFloader = new GLTFLoader();
-   GLTFloader.load("asset/home/testRoom.glb", function (gltf) {
+   GLTFloader.load("asset/home/far/scene.gltf", function (gltf) {
         obj = gltf.scene;
         console.log(gltf);
         var bbox = new THREE.Box3().setFromObject(obj);
@@ -203,13 +205,8 @@ function init() {
 
         var maxAxis = Math.max(size.x, size.y, size.z);
         // console.log(maxAxis);
-        obj.position.set(0, -50, 0);
-        obj.scale.multiplyScalar(56 / maxAxis);
-
-          if (gltf.animations.length) {
-            mixer = new THREE.AnimationMixer(gltf.scene);
-            mixer.clipAction(gltf.animations[0]).play();
-        }
+        obj.position.set(0, 0, -100);
+        obj.scale.multiplyScalar(25 / maxAxis);
 
         //   console.log('ssss');
 
@@ -226,12 +223,15 @@ function init() {
             side: THREE.DoubleSide,
         })
     );
-    mesh.position.y = 70;
+    
+    mesh.position.y = 50;
     mesh.rotation.x = - Math.PI / 2;
+    mesh.name = 'roof';
     scene.add(mesh);
 
      geometry = new THREE.BoxGeometry(200, 200, 0.1);
 
+     
      mesh = new THREE.Mesh(
         geometry,
         new THREE.MeshStandardMaterial({
@@ -239,34 +239,40 @@ function init() {
             side: THREE.DoubleSide,
         })
     );
-    mesh.position.y = -70;
+    mesh.position.y = -30;
     mesh.rotation.x = - Math.PI / 2;
-
+    mesh.name = 'floor';
     scene.add(mesh);
 
 
-     geometry = new THREE.BoxGeometry(200, 200, 0.1);
+     geometry = new THREE.BoxGeometry(200, 80, 0.1);
 
      mesh = new THREE.Mesh(
         geometry,
         new THREE.MeshStandardMaterial({
             color: "white",
             side: THREE.DoubleSide,
+            map: new THREE.TextureLoader().load('/texture/sidewall1.jpg')
         })
     );
     mesh.position.z = -100;
+    mesh.position.y = 10;
+
     scene.add(mesh);
 
-     geometry = new THREE.BoxGeometry(200, 200, 0.1);
+     geometry = new THREE.BoxGeometry(200, 80, 0.1);
 
      mesh = new THREE.Mesh(
         geometry,
         new THREE.MeshStandardMaterial({
             color: "white",
-            side: THREE.DoubleSide,
+            side: THREE.BackSide,
+            //belkuni
+            map: new THREE.TextureLoader().load('/texture/belkony.jpg')
         })
     );
     mesh.position.z = 100;
+    mesh.position.y = 10;
     
 
     scene.add(mesh);
@@ -278,6 +284,12 @@ function init() {
         new THREE.MeshStandardMaterial({
             color: "white",
             side: THREE.DoubleSide,
+            map: new THREE.TextureLoader().load('/texture/wallTextureSide.jpeg', (texture) => {
+                //side wall
+                texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+                texture.offset.set(0, 0);
+                texture.repeat.set(12, 22);
+            })
         })
     );
     mesh.position.x = 100;
@@ -293,6 +305,12 @@ function init() {
         new THREE.MeshStandardMaterial({
             color: "white",
             side: THREE.DoubleSide,
+            map: new THREE.TextureLoader().load('/texture/wallTextureSide.jpeg', (texture) => {
+                //side wall
+                texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+                texture.offset.set(0, 0);
+                texture.repeat.set(12, 22);
+            })
         })
     );
     mesh.position.x = -100;
