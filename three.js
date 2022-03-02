@@ -25,7 +25,7 @@ const clock = new THREE.Clock();
 
 
 
-let link = "asset/new3/Isometric Room.gltf";
+let link = "asset/home/testRoom.glb";
 const clickHandler = (e) => {
     //console.log(e.clientX, e.clientY);
     document.querySelector(".wrapper").style.right = "0";
@@ -194,32 +194,30 @@ function init() {
     mouse = new THREE.Vector2();
     mouse.x = mouse.y = -1;
 
-    const FBXloader = new FBXLoader();
     const GLTFloader = new GLTFLoader();
-    const OBJloader = new OBJLoader();
+   GLTFloader.load("asset/home/testRoom.glb", function (gltf) {
+        obj = gltf.scene;
+        console.log(gltf);
+        var bbox = new THREE.Box3().setFromObject(obj);
+        var size = bbox.getSize(new THREE.Vector3());
 
-    // FBXloader.load("asset/ss/source/a.fbx", function (gltf) {
-    //     obj = gltf;
-    //     console.log(obj);
-    //     var bbox = new THREE.Box3().setFromObject(obj);
-    //     var size = bbox.getSize(new THREE.Vector3());
+        var maxAxis = Math.max(size.x, size.y, size.z);
+        // console.log(maxAxis);
+        obj.position.set(0, -50, 0);
+        obj.scale.multiplyScalar(56 / maxAxis);
 
-    //     var maxAxis = Math.max(size.x, size.y, size.z);
-    //     // console.log(maxAxis);
-    //     // obj.position.set(0, -5, 0);
-    //     obj.scale.multiplyScalar(6 / maxAxis);
+          if (gltf.animations.length) {
+            mixer = new THREE.AnimationMixer(gltf.scene);
+            mixer.clipAction(gltf.animations[0]).play();
+        }
 
-    // let geometry = new THREE.BoxBufferGeometry(55,55,55);
-    // let mesh = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({
-    //     color: 'white',
-    //     side: THREE.DoubleSide,
-    // }));
+        //   console.log('ssss');
 
-    // scene.add(mesh);
+        scene.add(obj);
+    });
 
-   
 
-    let geometry = new THREE.BoxGeometry(50, 50, 50);
+    let geometry = new THREE.BoxGeometry(200, 200, 0.1);
 
     let mesh = new THREE.Mesh(
         geometry,
@@ -228,6 +226,78 @@ function init() {
             side: THREE.DoubleSide,
         })
     );
+    mesh.position.y = 70;
+    mesh.rotation.x = - Math.PI / 2;
+    scene.add(mesh);
+
+     geometry = new THREE.BoxGeometry(200, 200, 0.1);
+
+     mesh = new THREE.Mesh(
+        geometry,
+        new THREE.MeshStandardMaterial({
+            color: "white",
+            side: THREE.DoubleSide,
+        })
+    );
+    mesh.position.y = -70;
+    mesh.rotation.x = - Math.PI / 2;
+
+    scene.add(mesh);
+
+
+     geometry = new THREE.BoxGeometry(200, 200, 0.1);
+
+     mesh = new THREE.Mesh(
+        geometry,
+        new THREE.MeshStandardMaterial({
+            color: "white",
+            side: THREE.DoubleSide,
+        })
+    );
+    mesh.position.z = -100;
+    scene.add(mesh);
+
+     geometry = new THREE.BoxGeometry(200, 200, 0.1);
+
+     mesh = new THREE.Mesh(
+        geometry,
+        new THREE.MeshStandardMaterial({
+            color: "white",
+            side: THREE.DoubleSide,
+        })
+    );
+    mesh.position.z = 100;
+    
+
+    scene.add(mesh);
+
+     geometry = new THREE.BoxGeometry(200, 200, 0.1);
+
+     mesh = new THREE.Mesh(
+        geometry,
+        new THREE.MeshStandardMaterial({
+            color: "white",
+            side: THREE.DoubleSide,
+        })
+    );
+    mesh.position.x = 100;
+    mesh.rotation.y = - Math.PI / 2;
+    
+
+    scene.add(mesh);
+
+    geometry = new THREE.BoxGeometry(200, 200, 0.1);
+
+     mesh = new THREE.Mesh(
+        geometry,
+        new THREE.MeshStandardMaterial({
+            color: "white",
+            side: THREE.DoubleSide,
+        })
+    );
+    mesh.position.x = -100;
+    mesh.rotation.y = - Math.PI / 2;
+    
 
     scene.add(mesh);
 
@@ -240,41 +310,6 @@ function init() {
     const distance = halfSizeToFitOnScreen / Math.tan(halfFovY);
 
     
-
-    let sphere = new THREE.SphereBufferGeometry(5, 50, 50);
-    mesh = new THREE.Mesh(
-        sphere,
-        new THREE.MeshLambertMaterial({
-            color: "white",
-            side: THREE.DoubleSide,
-            reflectivity: 0.5,
-            combine: THREE.MixOperation,
-        })
-    );
-
-    scene.add(mesh);
-
-    // GLTFloader.load(link, function (gltf) {
-    //     obj = gltf.scene;
-    //     console.log(gltf);
-    //     var bbox = new THREE.Box3().setFromObject(obj);
-    //     var size = bbox.getSize(new THREE.Vector3());
-
-    //     var maxAxis = Math.max(size.x, size.y, size.z);
-    //     // console.log(maxAxis);
-    //     // obj.position.set(0, -5, 0);
-    //     obj.scale.multiplyScalar(11 / maxAxis);
-
-    //       if (gltf.animations.length) {
-    //         mixer = new THREE.AnimationMixer(gltf.scene);
-    //         mixer.clipAction(gltf.animations[0]).play();
-    //     }
-
-    //     //   console.log('ssss');
-
-    //     scene.add(obj);
-    // });
-
     //setup orbit controller
     controls = new OrbitControls(camera, renderer.domElement);
     controls.target.set(0, 0, 0);
@@ -282,7 +317,7 @@ function init() {
     controls.screenSpacePanning = false;
     controls.update();
 
-    controls.maxDistance =  25;
+    // controls.maxDistance =  25;
 
 
     // controls = new PointerLockControls(camera, renderer.domElement);
