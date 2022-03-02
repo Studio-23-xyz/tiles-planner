@@ -205,15 +205,114 @@ function init() {
 
         var maxAxis = Math.max(size.x, size.y, size.z);
         // console.log(maxAxis);
-        obj.position.set(0, 0, -100);
-        obj.scale.multiplyScalar(25 / maxAxis);
+        obj.position.set(0, -30, -57);
+        obj.rotation.set(0,  Math.PI/2, 0);
+
+        obj.scale.multiplyScalar(90 / maxAxis);
 
         //   console.log('ssss');
 
         scene.add(obj);
     });
 
+    //chair
+   GLTFloader.load("asset/home/SheenChair.glb", function (gltf) {
+        obj = gltf.scene;
+        console.log(gltf);
+        var bbox = new THREE.Box3().setFromObject(obj);
+        var size = bbox.getSize(new THREE.Vector3());
 
+        var maxAxis = Math.max(size.x, size.y, size.z);
+        // console.log(maxAxis);
+        obj.position.set(-65, -30, 76);
+        obj.rotation.set(0, 14.8, 0);
+
+        obj.scale.multiplyScalar(37 / maxAxis);
+
+        //   console.log('ssss');
+
+        scene.add(obj);
+    });
+
+    //wallpaper
+   GLTFloader.load("asset/home/wallpaper/scene.gltf", function (gltf) {
+        obj = gltf.scene;
+        console.log(gltf);
+        var bbox = new THREE.Box3().setFromObject(obj);
+        var size = bbox.getSize(new THREE.Vector3());
+
+        var maxAxis = Math.max(size.x, size.y, size.z);
+        // console.log(maxAxis);
+        obj.position.set(65, -30, 0);
+        obj.rotation.set(0, - Math.PI/2, 0);
+
+        obj.scale.multiplyScalar(37 / maxAxis);
+
+        //   console.log('ssss');
+
+        scene.add(obj);
+    });
+   
+    //light1
+   GLTFloader.load("asset/home/lamp/scene.gltf", function (gltf) {
+        obj = gltf.scene;
+        console.log(gltf);
+        var bbox = new THREE.Box3().setFromObject(obj);
+        var size = bbox.getSize(new THREE.Vector3());
+
+        var maxAxis = Math.max(size.x, size.y, size.z);
+        // console.log(maxAxis);
+        obj.position.set(-40, -10, -57);
+
+        obj.scale.multiplyScalar(37 / maxAxis);
+
+        //   console.log('ssss');
+
+        scene.add(obj);
+       
+    });
+    //light2
+   GLTFloader.load("asset/home/lamp/scene.gltf", function (gltf) {
+        obj = gltf.scene;
+        console.log(gltf);
+        var bbox = new THREE.Box3().setFromObject(obj);
+        var size = bbox.getSize(new THREE.Vector3());
+
+        var maxAxis = Math.max(size.x, size.y, size.z);
+        // console.log(maxAxis);
+        obj.position.set(40, -10, -57);
+
+        obj.scale.multiplyScalar(37 / maxAxis);
+
+        //   console.log('ssss');
+
+        scene.add(obj);
+       
+    });
+
+//     //door
+//    GLTFloader.load("asset/home/door/scene.gltf", function (gltf) {
+//         obj = gltf.scene;
+//         console.log(gltf);
+//         var bbox = new THREE.Box3().setFromObject(obj);
+//         var size = bbox.getSize(new THREE.Vector3());
+
+//         var maxAxis = Math.max(size.x, size.y, size.z);
+//         // console.log(maxAxis);
+//         obj.position.set(-65, -21, 0);
+//         obj.rotation.set(0, - Math.PI/2, 0);
+
+//         obj.scale.multiplyScalar(37 / maxAxis);
+
+//         //   console.log('ssss');
+
+//         scene.add(obj);
+       
+//     });
+
+
+
+    //create room
     let geometry = new THREE.BoxGeometry(200, 200, 0.1);
 
     let mesh = new THREE.Mesh(
