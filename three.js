@@ -21,7 +21,9 @@ let camera,
     rayCast,
     angel = 0,
     INTERSECTED,
-    textureLink;
+    textureLink,
+    spotLight1,
+    spotLight2;
 
 const clock = new THREE.Clock();
 
@@ -166,37 +168,59 @@ function init() {
     );
 
     camera.lookAt(scene.position);
-    camera.position.set(0, 0, 25);
+    camera.position.set(0, 0, 80);
     // camera.lookAt(new THREE.Vector3(0, 0, 0));
 
     renderer.setSize(window.innerWidth, window.innerHeight, false);
     document.body.appendChild(renderer.domElement);
 
     //setup light
-    let light = new THREE.HemisphereLight(0xffffbb, 0x080820, 0.8);
+    let light = new THREE.AmbientLight(0xffffff, 0.4);
 
     scene.add(light);
 
-    // let DirectionalLightbt = new THREE.DirectionalLight(0xffffff, 0.7);
-    // DirectionalLightbt.position.set(3, -8, 1.5);
+    let DirectionalLightbt = new THREE.DirectionalLight(0xffffff, 0.3);
+    DirectionalLightbt.position.set(90, 0, 0);
 
-    // scene.add(DirectionalLightbt);
+    scene.add(DirectionalLightbt);
 
-    // let DirectionalLightside = new THREE.DirectionalLight(0xffffff, 0.5);
-    // DirectionalLightside.position.set(7, 8, 0);
+    let DirectionalLightside = new THREE.DirectionalLight(0xffffff, 0.4);
+    DirectionalLightside.position.set(-90, 0, 0);
 
-    // scene.add(DirectionalLightside);
+    scene.add(DirectionalLightside);
 
-    // let DirectionalLightside2 = new THREE.DirectionalLight(0xffffff, 0.5);
-    // DirectionalLightside2.position.set(-7, 8, 0);
+    let DirectionalLightside2 = new THREE.DirectionalLight(0xffffff, 1);
+    DirectionalLightside2.position.set(0, 0, 80);
 
-    // scene.add(DirectionalLightside2);
+    scene.add(DirectionalLightside2);
+
+    let DirectionalLightside3 = new THREE.DirectionalLight(0xffffff, 0.4);
+    DirectionalLightside3.position.set(0, 0, -80);
+
+    scene.add(DirectionalLightside3);
+
+    let DirectionalLightside4 = new THREE.DirectionalLight(0xffffff, 0.5);
+    DirectionalLightside4.position.set(0, -30, 0);
+
+    scene.add(DirectionalLightside4);
+
+    let DirectionalLightside5 = new THREE.DirectionalLight(0xffffff, 0.5);
+    DirectionalLightside5.position.set(0, 30, 0);
+
+    scene.add(DirectionalLightside5);
+
+    
+
+
+    //raycaster
 
     rayCast = new THREE.Raycaster();
     mouse = new THREE.Vector2();
     mouse.x = mouse.y = -1;
 
     const GLTFloader = new GLTFLoader();
+    const FBXloader = new FBXLoader();
+
    GLTFloader.load("asset/home/far/scene.gltf", function (gltf) {
         obj = gltf.scene;
         console.log(gltf);
@@ -290,26 +314,26 @@ function init() {
        
     });
 
-//     //door
-//    GLTFloader.load("asset/home/door/scene.gltf", function (gltf) {
-//         obj = gltf.scene;
-//         console.log(gltf);
-//         var bbox = new THREE.Box3().setFromObject(obj);
-//         var size = bbox.getSize(new THREE.Vector3());
+//     //shelf
 
-//         var maxAxis = Math.max(size.x, size.y, size.z);
-//         // console.log(maxAxis);
-//         obj.position.set(-65, -21, 0);
-//         obj.rotation.set(0, - Math.PI/2, 0);
+GLTFloader.load("asset/shelf/scene.gltf", function (gltf) {
+    obj = gltf.scene;
+    console.log(gltf);
+    var bbox = new THREE.Box3().setFromObject(obj);
+    var size = bbox.getSize(new THREE.Vector3());
 
-//         obj.scale.multiplyScalar(37 / maxAxis);
+    var maxAxis = Math.max(size.x, size.y, size.z);
+    // console.log(maxAxis);
+    obj.position.set(-88, 0, 0);
+    obj.rotation.set(0, Math.PI/2, 0);
 
-//         //   console.log('ssss');
+    obj.scale.multiplyScalar(30 / maxAxis);
 
-//         scene.add(obj);
-       
-//     });
+    //   console.log('ssss');
 
+    scene.add(obj);
+   
+});
 
 
     //create room
@@ -429,25 +453,12 @@ function init() {
     
     //setup orbit controller
     controls = new OrbitControls(camera, renderer.domElement);
-    controls.target.set(0, 0, 0);
-    // controls.autoRotate = true;
-    controls.screenSpacePanning = false;
+    
+    
     controls.update();
+    scene.rotation.y = Math.PI + Math.PI /4;
 
-    // controls.maxDistance =  25;
-
-
-    // controls = new PointerLockControls(camera, renderer.domElement);
-
-    // // add event listener to show/hide a UI (e.g. the game's menu)
-
-    // controls.addEventListener("lock", function () {
-    //     console.log('lock');
-    // });
-
-    // controls.addEventListener("unlock", function () {
-    //     console.log('unlock');
-    // });
+    
 
     renderer.setAnimationLoop(render);
 
@@ -468,8 +479,8 @@ function onWindowResize() {
 
 function render() {
     if (mixer) mixer.update(clock.getDelta());
-
     
+   
     renderer.render(scene, camera);
 }
 
