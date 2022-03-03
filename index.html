@@ -10,6 +10,8 @@
 </head>
 
 <body>
+     <canvas id="myCanvasElement"></canvas>
+     
     <div class="closebtn">
         
     </div>
@@ -23,11 +25,47 @@
         </div>
 
         <div class="img">
-            <img src="https://threejs.org/examples/textures/758px-Canestra_di_frutta_(Caravaggio).jpg" alt="t1" height="100px" width="100px" id="t1">
-            <br><img src="./Paint_Texture.jpg" alt="t1" height="100px" width="100px" id="t2">
+            <img src='./texture/wd.jpeg' alt="t1" height="50px" width="100px" id="t1">
+            <br><img src='./texture/wp1.jpeg' alt="t1" height="50px" width="100px" id="t2">
         </div>
         
     </div>
+    <div class="wrapperForFloor">
+        <div class="angel">
+            <h5 id="0f">0 </h5>&nbsp;&nbsp;
+            <h5 id="45f">45 </h5>&nbsp;&nbsp;
+            <h5 id="90f">90 </h5>&nbsp;&nbsp;
+            <h5 id="135f">135 </h5>&nbsp;&nbsp;
+            <h5 id="180f">180</h5>&nbsp;&nbsp;
+        </div>
+
+        <div class="img">
+            <img src='./texture/floort1.jpeg' alt="t1" height="50px" width="100px" id="t1Floor">
+            <br><img src='./texture//floort2.jpeg' alt="t1" height="50px" width="100px" id="t2Floor">
+        </div>
+        
+    </div>
+
+    <div class="wrapperForselling">
+        <input type="color" id="favcolor" name="favcolor" value="#ff0000"><br><br>
+    </div>
+
+    <div class="functions">
+        <div class="modelAngel">
+            <img class="angelImg" src='./texture/views/p1.png' alt="p1" height="50px" width="70px" id="p1">
+            <img class="angelImg" src='./texture/views/p2.png' alt="p2" height="50px" width="70px" id="p2">
+            <img class="angelImg" src='./texture/views/p3.png' alt="p3" height="50px" width="70px" id="p3">
+            <img class="angelImg" src='./texture/views/p4.png' alt="p4" height="50px" width="70px" id="p4">
+        </div>
+
+        <div class="snap">
+            <div class="downloadCanvas" id="pdfSave"><img src="https://img.icons8.com/ios/50/000000/pdf--v1.png"/></div>
+            <div class="downloadCanvas" id="imgSave"><img src="https://img.icons8.com/wired/64/000000/screenshot.png"/></div>
+        </div>
+
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.5.3/jspdf.min.js"></script>
     <!-- Import maps polyfill -->
     <!-- Remove this when import maps will be widely supported -->
     <script async src="https://unpkg.com/es-module-shims@1.3.6/dist/es-module-shims.js"></script>

@@ -1,16 +1,21 @@
 body{
     margin: 0;
     overflow: hidden;
+    width: 100%;
 }
 
-.wrapper{
+.wrapper, .wrapperForselling, .wrapperForFloor{
     position: absolute;
     background: white;
     font-size: 25px;
-    
     top: 5%;
+    right: -100%;
     transition: .5s ease;
 }
+/* .wrapperForselling{
+    left: 0;
+    width: 30%;
+} */
 
 .img{
     z-index: 111111;
@@ -24,4 +29,25 @@ body{
     cursor: pointer;
     padding: 10px;
 }
+.functions{
+    display: flex;
+    position: absolute;
+    z-index: 11111;
+    bottom: 0;
+    left: 4%;
+    justify-content: space-between;
+    width: 90%;
+}
+.angelImg{
+    border-radius: 10px;
+    margin: 2px;
+    cursor: pointer;
+}
+.snap{
+    display: flex;
+}
+.downloadCanvas{
+    cursor: pointer;
+}
+
 
