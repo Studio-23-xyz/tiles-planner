@@ -28,16 +28,14 @@ const clock = new THREE.Clock();
 
 let link = "asset/home/testRoom.glb";
 const clickHandler = (e) => {
-    //console.log(e.clientX, e.clientY);
-
-    // scene.rotation.y =  Math.PI + Math.PI /8
+    
     mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
     mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
     mouse.z = 1;
     rayCast.setFromCamera(mouse, camera);
 
     var intersects = rayCast.intersectObjects(scene.children);
-    // wrapperForFloor
+    
 
     if (intersects[intersects.length - 1].object.name === "roof") {
         document.querySelector(".wrapperForselling").style.right = "0";
@@ -61,9 +59,7 @@ const clickHandler = (e) => {
         document.querySelector(".wrapperForFloor").style.right = "-100%";
     }
 
-    console.log(intersects);
     textureLink = intersects[intersects.length - 1].object.material.map;
-    console.log(textureLink);
 
     if (intersects.length > 0) {
         if (INTERSECTED != intersects[intersects.length - 1].object) {
@@ -84,9 +80,6 @@ var overlay3 = document.querySelector(".wrapper");
 overlay3.addEventListener("click", function (ev) {
     ev.stopPropagation();
 });
-
-
-
 
 
 //color
@@ -574,6 +567,27 @@ function init() {
 
     //for responsiveness
     window.addEventListener("resize", onWindowResize);
+    var mouseIsDown = false;
+    var idTimeout;
+
+    // document.getElementById('siam').addEventListener('click', () => {
+    //     alert('siam')
+    // })
+    document.getElementById('siam').addEventListener('mousedown', function() {
+        
+    mouseIsDown = true;
+    idTimeout = setTimeout(function() {
+        if(mouseIsDown) {
+            alert('siam')
+        }
+    }, 20);
+    });
+
+    window.addEventListener('mouseup', function() {
+    clearTimeout(idTimeout);
+    mouseIsDown = false;
+    });
+
     document.addEventListener("click", clickHandler);
 }
 
