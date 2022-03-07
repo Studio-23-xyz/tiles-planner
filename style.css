@@ -14,25 +14,41 @@ body{
     background: rgba(255, 255, 255, 0.9);
     font-size: 25px;
     top: 5%;
-    right: -100%;
+    display: none;
     transition: .5s ease;
+    max-height: 100vh;
 }
 #arrowBtn1{
+    border: none;
     position: absolute;
-    right: 0;
-    top: 0;
-
+    left: -40px;
+    z-index: 1111111111;
+    cursor: pointer;
+    background: white;
+    border-radius: 2px;
+}
+.rotation{
+    transform: rotate(-180deg);
+}
+#arrowBtn2{
+    position: absolute;
+    left: -40px;
+    border: none;
+    z-index: 1111111111;
+    background: white;
+    cursor: pointer;
+    border-radius: 2px;
 }
 .wrapperForselling{
+    display: none;
     position: absolute;
-    display: flex;
+    /* display: flex; */
     align-items: center;
     padding: 5px 30px 5px 30px;
 
     background: white;
     font-size: 25px;
     top: 5%;
-    right: -100%;
     transition: .5s ease;
 }
 /* .wrapperForselling{
@@ -45,6 +61,8 @@ body{
     cursor: pointer;
     display: block;
     padding-left: 10px;
+    overflow: scroll;
+    max-height: 90vh;
 }
 .angel{
     display: flex;

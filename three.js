@@ -29,12 +29,23 @@ let camera,
     material3,
     mesh;
 
+let arrowCheck1 = true,
+    arrowCheck2 = true;
 
-    let wallUp, wallDown, wallRight, wallLeft, wallFont, wallBack;
+let wallUp, wallDown, wallRight, wallLeft, wallFont, wallBack;
 
-let cubeRenderTarget2 = new THREE.WebGLCubeRenderTarget(50);
+let cubeRenderTarget1 = new THREE.WebGLCubeRenderTarget(0, {
+    generateMipmaps: true,
+    minFilter: true,
+});
+let cubeRenderTarget2 = new THREE.WebGLCubeRenderTarget(50, {
+    generateMipmaps: true,
+    minFilter: true,
+});
 
-let cubeCamera2 = new THREE.CubeCamera(1, 1000, cubeRenderTarget2);
+let cubeCamera1 = new THREE.CubeCamera(1, 0, cubeRenderTarget1);
+
+let cubeCamera2 = new THREE.CubeCamera(1, 90, cubeRenderTarget2);
 
 const clock = new THREE.Clock();
 
@@ -50,30 +61,38 @@ const clickHandler = (e) => {
 
     if (checkDrag === false) {
         if (intersects[intersects.length - 1].object.name === "roof") {
+            document.querySelector(".wrapperForselling").style.display = "flex";
+            document.querySelector(".wrapper").style.display = "none";
+            document.querySelector(".wrapperForFloor").style.display = "none";
             document.querySelector(".wrapperForselling").style.right = "0";
-            document.querySelector(".wrapper").style.right = "-100%";
-            document.querySelector(".wrapperForFloor").style.right = "-100%";
         } else if (
             intersects[intersects.length - 1].object.name === "rightWall" ||
             intersects[intersects.length - 1].object.name === "leftWall"
         ) {
-            document.getElementById('arrowBtn1').style.right = '100px'
+            arrowCheck1 = true;
+            arrowCheck2 = true;
+            document.getElementById("arrowBtn1").classList.remove("rotation");
+            document.querySelector(".wrapperForselling").style.display = "none";
+            document.querySelector(".wrapper").style.display = "block";
+            document.querySelector(".wrapperForFloor").style.display = "none";
             document.querySelector(".wrapper").style.right = "0";
-            document.querySelector(".wrapperForselling").style.right = "-100%";
-            document.querySelector(".wrapperForFloor").style.right = "-100%";
         } else if (intersects[intersects.length - 1].object.name === "floor") {
-            document.querySelector(".wrapper").style.right = "-100%";
-            document.querySelector(".wrapperForselling").style.right = "-100%";
+            arrowCheck1 = true;
+            arrowCheck2 = true;
+            document.getElementById("arrowBtn2").classList.remove("rotation");
+            document.querySelector(".wrapperForselling").style.display = "none";
+            document.querySelector(".wrapper").style.display = "none";
+            document.querySelector(".wrapperForFloor").style.display = "block";
             document.querySelector(".wrapperForFloor").style.right = "0";
         } else {
-            document.querySelector(".wrapper").style.right = "-100%";
-            document.querySelector(".wrapperForselling").style.right = "-100%";
-            document.querySelector(".wrapperForFloor").style.right = "-100%";
+            document.querySelector(".wrapperForselling").style.display = "none";
+            document.querySelector(".wrapper").style.display = "none";
+            document.querySelector(".wrapperForFloor").style.display = "none";
         }
     } else {
-        document.querySelector(".wrapper").style.right = "-100%";
-        document.querySelector(".wrapperForselling").style.right = "-100%";
-        document.querySelector(".wrapperForFloor").style.right = "-100%";
+        document.querySelector(".wrapperForselling").style.display = "none";
+        document.querySelector(".wrapper").style.display = "none";
+        document.querySelector(".wrapperForFloor").style.display = "none";
     }
 
     textureLink = intersects[intersects.length - 1].object.material.map;
@@ -84,6 +103,35 @@ const clickHandler = (e) => {
         }
     }
 };
+
+//rotation arrow
+
+document.getElementById("arrowBtn1").addEventListener("click", () => {
+    if (arrowCheck1) {
+        document.querySelector(".wrapper").style.right = "-422px";
+        document.getElementById("arrowBtn1").classList.add("rotation");
+        arrowCheck1 = false;
+        arrowCheck2 = true;
+    } else {
+        document.querySelector(".wrapper").style.right = 0;
+        document.getElementById("arrowBtn1").classList.remove("rotation");
+        arrowCheck1 = true;
+        arrowCheck2 = true;
+    }
+});
+document.getElementById("arrowBtn2").addEventListener("click", () => {
+    if (arrowCheck2) {
+        document.querySelector(".wrapperForFloor").style.right = "-422px";
+        document.getElementById("arrowBtn2").classList.add("rotation");
+        arrowCheck2 = false;
+        arrowCheck1 = true;
+    } else {
+        document.querySelector(".wrapperForFloor").style.right = 0;
+        document.getElementById("arrowBtn2").classList.remove("rotation");
+        arrowCheck2 = true;
+        arrowCheck1 = true;
+    }
+});
 
 var overlay = document.querySelector(".wrapperForselling");
 overlay.addEventListener("click", function (ev) {
@@ -98,18 +146,14 @@ overlay3.addEventListener("click", function (ev) {
     ev.stopPropagation();
 });
 
-document.getElementById('cancel1').addEventListener('click', () => {
-    document.querySelector(".wrapper").style.right = "-100%";
-    document.querySelector(".wrapperForselling").style.right = "-100%";
-    document.querySelector(".wrapperForFloor").style.right = "-100%";
-})
+document.getElementById("cancel1").addEventListener("click", () => {
+    document.querySelector(".wrapperForselling").style.right = "-47%";
+});
 
 //color
 document.getElementById("favcolor").addEventListener("change", () => {
     INTERSECTED.material.color.set(document.getElementById("favcolor").value);
-    document.querySelector(".wrapper").style.right = "-100%";
-    document.querySelector(".wrapperForselling").style.right = "-100%";
-    document.querySelector(".wrapperForFloor").style.right = "-100%";
+    document.querySelector(".wrapperForselling").style.right = "-47%";
 });
 
 let changeTexture = (textureLink) => {
@@ -119,77 +163,127 @@ let changeTexture = (textureLink) => {
         texture.repeat.set(10, 12);
     });
     INTERSECTED.material.map = x;
-    document.querySelector(".wrapper").style.right = "-100%";
-    document.querySelector(".wrapperForselling").style.right = "-100%";
-    document.querySelector(".wrapperForFloor").style.right = "-100%";
 };
-let changeTextureAngel = (textureLink) => {
+let changeTextureAngel = () => {
     INTERSECTED.material.map.rotation = THREE.Math.degToRad(angel);
-    document.querySelector(".wrapper").style.right = "-100%";
-    document.querySelector(".wrapperForselling").style.right = "-100%";
-    document.querySelector(".wrapperForFloor").style.right = "-100%";
 };
 
 document.getElementById("t1").addEventListener("click", () => {
+    document.querySelector(".wrapper").style.right = "-422px";
+    document.getElementById("arrowBtn1").classList.add("rotation");
+    arrowCheck1 = false;
+    arrowCheck2 = true;
     textureLink = "./texture/wd.jpeg";
     changeTexture(textureLink);
 });
 document.getElementById("t2").addEventListener("click", () => {
+    document.querySelector(".wrapper").style.right = "-422px";
+    document.getElementById("arrowBtn1").classList.add("rotation");
+    arrowCheck1 = false;
+    arrowCheck2 = true;
     textureLink = "./texture/wp1.jpeg";
     changeTexture(textureLink);
 });
 
 //floor texture change event
 document.getElementById("t1Floor").addEventListener("click", () => {
+    document.querySelector(".wrapperForFloor").style.right = "-422px";
+    document.getElementById("arrowBtn2").classList.add("rotation");
+    arrowCheck2 = false;
+    arrowCheck1 = true;
     textureLink = "./texture/floort1.jpeg";
     changeTexture(textureLink);
 });
 document.getElementById("t2Floor").addEventListener("click", () => {
+    document.querySelector(".wrapperForFloor").style.right = "-422px";
+    document.getElementById("arrowBtn2").classList.add("rotation");
+    arrowCheck2 = false;
+    arrowCheck1 = true;
     textureLink = "./texture/floort2.jpeg";
     changeTexture(textureLink);
 });
 
 document.getElementById("0").addEventListener("click", () => {
+    document.querySelector(".wrapper").style.right = "-422px";
+    document.getElementById("arrowBtn1").classList.add("rotation");
+    arrowCheck1 = false;
+    arrowCheck2 = true;
     angel = 0;
     changeTextureAngel(textureLink);
 });
 
 document.getElementById("45").addEventListener("click", () => {
+    document.querySelector(".wrapper").style.right = "-422px";
+    document.getElementById("arrowBtn1").classList.add("rotation");
+    arrowCheck1 = false;
+    arrowCheck2 = true;
     angel = 45;
     changeTextureAngel(textureLink);
 });
 document.getElementById("90").addEventListener("click", () => {
+    document.querySelector(".wrapper").style.right = "-422px";
+    document.getElementById("arrowBtn1").classList.add("rotation");
+    arrowCheck1 = false;
+    arrowCheck2 = true;
     angel = 90;
     changeTextureAngel(textureLink);
 });
 document.getElementById("135").addEventListener("click", () => {
+    document.querySelector(".wrapper").style.right = "-422px";
+    document.getElementById("arrowBtn1").classList.add("rotation");
+    arrowCheck1 = false;
+    arrowCheck2 = true;
     angel = 135;
     changeTextureAngel(textureLink);
 });
 document.getElementById("180").addEventListener("click", () => {
+    document.querySelector(".wrapper").style.right = "-422px";
+    document.getElementById("arrowBtn1").classList.add("rotation");
+    arrowCheck1 = false;
+    arrowCheck2 = true;
     angel = 180;
     changeTextureAngel(textureLink);
 });
 
 //angle for floor
 document.getElementById("0f").addEventListener("click", () => {
+    document.querySelector(".wrapperForFloor").style.right = "-422px";
+    document.getElementById("arrowBtn2").classList.add("rotation");
+    arrowCheck2 = false;
+    arrowCheck1 = true;
     angel = 45;
     changeTextureAngel(textureLink);
 });
 
 document.getElementById("45f").addEventListener("click", () => {
+    document.querySelector(".wrapperForFloor").style.right = "-422px";
+    document.getElementById("arrowBtn2").classList.add("rotation");
+    arrowCheck2 = false;
+    arrowCheck1 = true;
     angel = 45;
     changeTextureAngel(textureLink);
 });
 document.getElementById("90f").addEventListener("click", () => {
+    document.querySelector(".wrapperForFloor").style.right = "-422px";
+    document.getElementById("arrowBtn2").classList.add("rotation");
+    arrowCheck2 = false;
+    arrowCheck1 = true;
     angel = 90;
     changeTextureAngel(textureLink);
 });
 document.getElementById("135f").addEventListener("click", () => {
+    document.querySelector(".wrapperForFloor").style.right = "-422px";
+    document.getElementById("arrowBtn2").classList.add("rotation");
+    arrowCheck2 = false;
+    arrowCheck1 = true;
     angel = 135;
     changeTextureAngel(textureLink);
 });
 document.getElementById("180f").addEventListener("click", () => {
+    document.querySelector(".wrapperForFloor").style.right = "-422px";
+    document.getElementById("arrowBtn2").classList.add("rotation");
+    arrowCheck2 = false;
+    arrowCheck1 = true;
     angel = 180;
     changeTextureAngel(textureLink);
 });
@@ -272,19 +366,17 @@ document.getElementById("pdfSave").addEventListener("click", () => {
 function init() {
     //getting canvas
     var canvReference = document.getElementById("myCanvasElement");
-    
-    window.addEventListener('load', () => {
-        setInterval(() => {
-            document.getElementById('loaderparent').style.display = 'none';
-            document.getElementById('overlay').style.display = 'none';
-        }, 500);
 
-        
-    })
+    window.addEventListener("load", () => {
+        setInterval(() => {
+            document.getElementById("loaderparent").style.display = "none";
+            document.getElementById("overlay").style.display = "none";
+        }, 500);
+    });
 
     //create scene
     scene = new THREE.Scene();
-    scene.background = new THREE.Color("skyblue");
+    // scene.background = new THREE.Color("white");
 
     //set resderer
     renderer = new THREE.WebGLRenderer({
@@ -302,45 +394,52 @@ function init() {
         1000
     );
 
-    
     camera.position.set(0, 0, 80);
 
     renderer.setSize(window.innerWidth, window.innerHeight, false);
 
     //setup light
-    let light = new THREE.AmbientLight(0xffffff, 0.4);
+    let light = new THREE.AmbientLight(0xffffff, 0.8);
 
     scene.add(light);
 
-    // let DirectionalLightbt = new THREE.DirectionalLight(0xffffff, 0.3);
-    // DirectionalLightbt.position.set(120, 0, 0);
+    let DirectionalLightbt = new THREE.DirectionalLight(0xffffff, 0.3);
+    DirectionalLightbt.position.set(0, 0, -50);
 
-    // scene.add(DirectionalLightbt);
+    scene.add(DirectionalLightbt);
+
+    const pointLight1 = new THREE.PointLight( 0xffffff, 0.4, 60 );
+    pointLight1.position.set( -40, 13, -56 );
+    scene.add( pointLight1 );
+
+    const pointLight = new THREE.PointLight( 0xffffff, 0.4, 60 );
+    pointLight.position.set( 40, 13, -56 );
+    scene.add( pointLight );
 
     // let DirectionalLightside = new THREE.DirectionalLight(0xffffff, 0.2);
     // DirectionalLightside.position.set(-120, 50, 0);
 
     // scene.add(DirectionalLightside);
 
-    let DirectionalLightside2 = new THREE.DirectionalLight(0xffffff, 1);
-    DirectionalLightside2.position.set(0, 0, 100);
+    // let DirectionalLightside2 = new THREE.DirectionalLight(0xffffff, 1);
+    // DirectionalLightside2.position.set(0, 0, 100);
 
-    scene.add(DirectionalLightside2);
+    // scene.add(DirectionalLightside2);
 
-    let DirectionalLightside3 = new THREE.DirectionalLight(0xffffff, 0.4);
-    DirectionalLightside3.position.set(0, 0, -100);
+    // let DirectionalLightside3 = new THREE.DirectionalLight(0xffffff, 0.4);
+    // DirectionalLightside3.position.set(0, 0, -100);
 
-    scene.add(DirectionalLightside3);
+    // scene.add(DirectionalLightside3);
 
-    let DirectionalLightside4 = new THREE.DirectionalLight(0xffffff, 0.5);
-    DirectionalLightside4.position.set(0, -100, 0);
+    // let DirectionalLightside4 = new THREE.DirectionalLight(0xffffff, 0.5);
+    // DirectionalLightside4.position.set(0, -100, 0);
 
-    scene.add(DirectionalLightside4);
+    // scene.add(DirectionalLightside4);
 
-    let DirectionalLightside5 = new THREE.DirectionalLight(0xffffff, 0);
-    DirectionalLightside5.position.set(0, 200, 0);
+    // let DirectionalLightside5 = new THREE.DirectionalLight(0xffffff, 0);
+    // DirectionalLightside5.position.set(0, 200, 0);
 
-    scene.add(DirectionalLightside5);
+    // scene.add(DirectionalLightside5);
 
     //raycaster
 
@@ -483,7 +582,7 @@ function init() {
     geometry = new THREE.BoxGeometry(200, 200, 0.1);
 
     material3 = new THREE.MeshStandardMaterial({
-        envMap: cubeRenderTarget2.texture,
+        envMap: cubeCamera1.texture,
         roughness: 0.05,
         metalness: 0.5,
         side: THREE.DoubleSide,

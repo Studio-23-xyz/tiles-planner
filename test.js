@@ -5,6 +5,9 @@ import { OrbitControls } from "https://cdn.jsdelivr.net/npm/three@0.121.1/exampl
 import { GLTFLoader } from "./files/Loader.js";
 import { FBXLoader } from "./files/Loader.js";
 import { OBJLoader } from "./files/Loader.js";
+import { Reflector } from "./files/Reflector.js";
+import { PointerLockControls } from "./files/PointerLockControls.js";
+import { RGBELoader } from "https://cdn.jsdelivr.net/gh/mrdoob/three.js@dev/examples/jsm/loaders/RGBELoader.js";
 
 //console.log(ARButton);
 let camera,
@@ -17,149 +20,350 @@ let camera,
     rayCast,
     angel = 0,
     INTERSECTED,
-    textureLink;
+    textureLink,
+    spotLight1,
+    spotLight2,
+    checkDrag = false,
+    material1,
+    material2,
+    material3,
+    mesh;
+
+let arrowCheck1 = true,
+    arrowCheck2 = true;
+
+let wallUp, wallDown, wallRight, wallLeft, wallFont, wallBack;
+
+let cubeRenderTarget2 = new THREE.WebGLCubeRenderTarget(50);
+
+let cubeCamera2 = new THREE.CubeCamera(1, 1000, cubeRenderTarget2);
 
 const clock = new THREE.Clock();
 
-let link = "asset/new3/Isometric Room.gltf";
+let link = "asset/home/testRoom.glb";
 const clickHandler = (e) => {
-    
-    //console.log(e.clientX, e.clientY);
-    
-   
     mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
     mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
     mouse.z = 1;
     rayCast.setFromCamera(mouse, camera);
 
-    var intersects = rayCast.intersectObjects( scene.children );
-    console.log(intersects);
-     
-     if ( intersects.length > 0 ) {
+    var intersects = rayCast.intersectObjects(scene.children);
+    // wrapperForFloor
 
-      if ( INTERSECTED != intersects[ intersects.length -1 ].object ) {
-        INTERSECTED = intersects[ intersects.length -1 ].object;
-      }
-
+    if (checkDrag === false) {
+        if (intersects[intersects.length - 1].object.name === "roof") {
+            document.querySelector(".wrapperForselling").style.display = "flex";
+            document.querySelector(".wrapper").style.display = "none";
+            document.querySelector(".wrapperForFloor").style.display = "none";
+            document.querySelector(".wrapperForselling").style.right = "0";
+        } else if (
+            intersects[intersects.length - 1].object.name === "rightWall" ||
+            intersects[intersects.length - 1].object.name === "leftWall"
+        ) {
+            arrowCheck1 = true;
+            arrowCheck2 = true;
+            document.getElementById("arrowBtn1").classList.remove("rotation");
+            document.querySelector(".wrapperForselling").style.display = "none";
+            document.querySelector(".wrapper").style.display = "block";
+            document.querySelector(".wrapperForFloor").style.display = "none";
+            document.querySelector(".wrapper").style.right = "0";
+        } else if (intersects[intersects.length - 1].object.name === "floor") {
+            arrowCheck1 = true;
+            arrowCheck2 = true;
+            document.getElementById("arrowBtn2").classList.remove("rotation");
+            document.querySelector(".wrapperForselling").style.display = "none";
+            document.querySelector(".wrapper").style.display = "none";
+            document.querySelector(".wrapperForFloor").style.display = "block";
+            document.querySelector(".wrapperForFloor").style.right = "0";
+        } else {
+            document.querySelector(".wrapperForselling").style.display = "none";
+            document.querySelector(".wrapper").style.display = "none";
+            document.querySelector(".wrapperForFloor").style.display = "none";
+        }
+    } else {
+        document.querySelector(".wrapperForselling").style.display = "none";
+        document.querySelector(".wrapper").style.display = "none";
+        document.querySelector(".wrapperForFloor").style.display = "none";
     }
-    
+
+    textureLink = intersects[intersects.length - 1].object.material.map;
+
+    if (intersects.length > 0) {
+        if (INTERSECTED != intersects[intersects.length - 1].object) {
+            INTERSECTED = intersects[intersects.length - 1].object;
+        }
+    }
 };
+
+//rotation arrow
+
+document.getElementById("arrowBtn1").addEventListener("click", () => {
+    if (arrowCheck1) {
+        document.querySelector(".wrapper").style.right = "-422px";
+        document.getElementById("arrowBtn1").classList.add("rotation");
+        arrowCheck1 = false;
+        arrowCheck2 = true;
+    } else {
+        document.querySelector(".wrapper").style.right = 0;
+        document.getElementById("arrowBtn1").classList.remove("rotation");
+        arrowCheck1 = true;
+        arrowCheck2 = true;
+    }
+});
+document.getElementById("arrowBtn2").addEventListener("click", () => {
+    if (arrowCheck2) {
+        document.querySelector(".wrapperForFloor").style.right = "-422px";
+        document.getElementById("arrowBtn2").classList.add("rotation");
+        arrowCheck2 = false;
+        arrowCheck1 = true;
+    } else {
+        document.querySelector(".wrapperForFloor").style.right = 0;
+        document.getElementById("arrowBtn2").classList.remove("rotation");
+        arrowCheck2 = true;
+        arrowCheck1 = true;
+    }
+});
+
+var overlay = document.querySelector(".wrapperForselling");
+overlay.addEventListener("click", function (ev) {
+    ev.stopPropagation();
+});
+var overlay2 = document.querySelector(".wrapperForFloor");
+overlay2.addEventListener("click", function (ev) {
+    ev.stopPropagation();
+});
+var overlay3 = document.querySelector(".wrapper");
+overlay3.addEventListener("click", function (ev) {
+    ev.stopPropagation();
+});
+
+document.getElementById("cancel1").addEventListener("click", () => {
+    document.querySelector(".wrapperForselling").style.right = "-47%";
+});
+
+//color
+document.getElementById("favcolor").addEventListener("change", () => {
+    INTERSECTED.material.color.set(document.getElementById("favcolor").value);
+    document.querySelector(".wrapperForselling").style.right = "-47%";
+});
+
 let changeTexture = (textureLink) => {
-    console.log(INTERSECTED);
-    if(INTERSECTED.material.map !== null)
-    // castMaterial[1].object.material.map = new THREE.TextureLoader().load('./Paint_Texture.jpg');
-    {
-        INTERSECTED.material.map = new THREE.TextureLoader().load( textureLink, function ( texture ) {
+    let x = new THREE.TextureLoader().load(textureLink, function (texture) {
+        texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+        texture.offset.set(0, 0);
+        texture.repeat.set(10, 12);
+    });
+    INTERSECTED.material.map = x;
+};
+let changeTextureAngel = () => {
+    INTERSECTED.material.map.rotation = THREE.Math.degToRad(angel);
+};
 
-            texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
-            texture.offset.set( 0.7, 0 );
-            // texture.repeat.set( 1, 1 );
-            texture.repeat = new THREE.Vector2(1 , 1);
-            
-        
-        } );
-    }
-    else {
-        
-        INTERSECTED.material.color.set('white'); 
-        INTERSECTED.material.needsUpdate  = true;
-        // INTERSECTED.material.alpha = 0.5;
-        INTERSECTED.material.map = new THREE.TextureLoader().load( textureLink, function ( texture ) {
-
-            texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
-            texture.offset.set( 0, 0 );
-            texture.repeat.set( 1, 1 );
-            
-           
-            
-        
-        } );
-        INTERSECTED.material.alphaMap = new THREE.TextureLoader().load( textureLink, function ( texture ) {
-
-            texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
-            texture.offset.set( 0, 0 );
-            texture.repeat.set( 2, 2 );
-        
-        } );
-        
-    }
-}
-let changeTextureAngel = (textureLink) => {
-    console.log(INTERSECTED);
-    if(INTERSECTED.material.map !== null)
-    // castMaterial[1].object.material.map = new THREE.TextureLoader().load('./Paint_Texture.jpg');
-    {
-        INTERSECTED.material.map = new THREE.TextureLoader().load( textureLink, function ( texture ) {
-
-            texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
-            texture.offset.set( 0, 0 );
-            texture.repeat.set( 1, 1 );
-            
-            texture.center.set(.5, .5);
-            texture.rotation = THREE.Math.degToRad(angel);
-        
-        } );
-    }
-    else {
-        
-        INTERSECTED.material.color.set('red'); 
-        INTERSECTED.material.needsUpdate  = true;
-        // INTERSECTED.material.alpha = 0.5;
-        INTERSECTED.material.map = new THREE.TextureLoader().load( textureLink, function ( texture ) {
-
-            texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
-            texture.offset.set( 0, 0 );
-            texture.repeat.set( 1, 1 );
-            
-           
-            
-        
-        } );
-        INTERSECTED.material.alphaMap = new THREE.TextureLoader().load( textureLink, function ( texture ) {
-
-            texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
-            texture.offset.set( 0, 0 );
-            texture.repeat.set( 2, 2 );
-        
-        } );
-        
-    }
-}
-
-document.getElementById('t1').addEventListener('click', () => {
-    textureLink = "https://threejs.org/examples/textures/758px-Canestra_di_frutta_(Caravaggio).jpg";
+document.getElementById("t1").addEventListener("click", () => {
+    document.querySelector(".wrapper").style.right = "-422px";
+    document.getElementById("arrowBtn1").classList.add("rotation");
+    arrowCheck1 = false;
+    arrowCheck2 = true;
+    textureLink = "./texture/wd.jpeg";
     changeTexture(textureLink);
-    
 });
-document.getElementById('t2').addEventListener('click', () => {
-    textureLink = "./Paint_Texture.jpg";
-    changeTexture(textureLink); 
+document.getElementById("t2").addEventListener("click", () => {
+    document.querySelector(".wrapper").style.right = "-422px";
+    document.getElementById("arrowBtn1").classList.add("rotation");
+    arrowCheck1 = false;
+    arrowCheck2 = true;
+    textureLink = "./texture/wp1.jpeg";
+    changeTexture(textureLink);
 });
 
-document.getElementById('0').addEventListener('click', () => {
-    angel = 0; 
-    changeTextureAngel(textureLink); 
+//floor texture change event
+document.getElementById("t1Floor").addEventListener("click", () => {
+    document.querySelector(".wrapperForFloor").style.right = "-422px";
+    document.getElementById("arrowBtn2").classList.add("rotation");
+    arrowCheck2 = false;
+    arrowCheck1 = true;
+    textureLink = "./texture/floort1.jpeg";
+    changeTexture(textureLink);
 });
-document.getElementById('45').addEventListener('click', () => {
-    angel = 45; 
-    changeTextureAngel(textureLink); 
+document.getElementById("t2Floor").addEventListener("click", () => {
+    document.querySelector(".wrapperForFloor").style.right = "-422px";
+    document.getElementById("arrowBtn2").classList.add("rotation");
+    arrowCheck2 = false;
+    arrowCheck1 = true;
+    textureLink = "./texture/floort2.jpeg";
+    changeTexture(textureLink);
 });
-document.getElementById('90').addEventListener('click', () => {
-    angel = 90; 
-    changeTextureAngel(textureLink); 
+
+document.getElementById("0").addEventListener("click", () => {
+    document.querySelector(".wrapper").style.right = "-422px";
+    document.getElementById("arrowBtn1").classList.add("rotation");
+    arrowCheck1 = false;
+    arrowCheck2 = true;
+    angel = 0;
+    changeTextureAngel(textureLink);
 });
-document.getElementById('135').addEventListener('click', () => {
+
+document.getElementById("45").addEventListener("click", () => {
+    document.querySelector(".wrapper").style.right = "-422px";
+    document.getElementById("arrowBtn1").classList.add("rotation");
+    arrowCheck1 = false;
+    arrowCheck2 = true;
+    angel = 45;
+    changeTextureAngel(textureLink);
+});
+document.getElementById("90").addEventListener("click", () => {
+    document.querySelector(".wrapper").style.right = "-422px";
+    document.getElementById("arrowBtn1").classList.add("rotation");
+    arrowCheck1 = false;
+    arrowCheck2 = true;
+    angel = 90;
+    changeTextureAngel(textureLink);
+});
+document.getElementById("135").addEventListener("click", () => {
+    document.querySelector(".wrapper").style.right = "-422px";
+    document.getElementById("arrowBtn1").classList.add("rotation");
+    arrowCheck1 = false;
+    arrowCheck2 = true;
     angel = 135;
-    changeTextureAngel(textureLink);  
+    changeTextureAngel(textureLink);
 });
-document.getElementById('180').addEventListener('click', () => {
-    angel = 180; 
-    changeTextureAngel(textureLink); 
+document.getElementById("180").addEventListener("click", () => {
+    document.querySelector(".wrapper").style.right = "-422px";
+    document.getElementById("arrowBtn1").classList.add("rotation");
+    arrowCheck1 = false;
+    arrowCheck2 = true;
+    angel = 180;
+    changeTextureAngel(textureLink);
+});
+
+//angle for floor
+document.getElementById("0f").addEventListener("click", () => {
+    document.querySelector(".wrapperForFloor").style.right = "-422px";
+    document.getElementById("arrowBtn2").classList.add("rotation");
+    arrowCheck2 = false;
+    arrowCheck1 = true;
+    angel = 45;
+    changeTextureAngel(textureLink);
+});
+
+document.getElementById("45f").addEventListener("click", () => {
+    document.querySelector(".wrapperForFloor").style.right = "-422px";
+    document.getElementById("arrowBtn2").classList.add("rotation");
+    arrowCheck2 = false;
+    arrowCheck1 = true;
+    angel = 45;
+    changeTextureAngel(textureLink);
+});
+document.getElementById("90f").addEventListener("click", () => {
+    document.querySelector(".wrapperForFloor").style.right = "-422px";
+    document.getElementById("arrowBtn2").classList.add("rotation");
+    arrowCheck2 = false;
+    arrowCheck1 = true;
+    angel = 90;
+    changeTextureAngel(textureLink);
+});
+document.getElementById("135f").addEventListener("click", () => {
+    document.querySelector(".wrapperForFloor").style.right = "-422px";
+    document.getElementById("arrowBtn2").classList.add("rotation");
+    arrowCheck2 = false;
+    arrowCheck1 = true;
+    angel = 135;
+    changeTextureAngel(textureLink);
+});
+document.getElementById("180f").addEventListener("click", () => {
+    document.querySelector(".wrapperForFloor").style.right = "-422px";
+    document.getElementById("arrowBtn2").classList.add("rotation");
+    arrowCheck2 = false;
+    arrowCheck1 = true;
+    angel = 180;
+    changeTextureAngel(textureLink);
+});
+
+//scene rotation
+let p1_flag, p2_flag, p3_flag, p4_flag;
+document.getElementById("p1").addEventListener("click", () => {
+    controls.reset();
+    checkDrag = true;
+    scene.rotation.y = 0;
+    p1_flag = false;
+    p2_flag = true;
+    p3_flag = true;
+    p4_flag = true;
+});
+document.getElementById("p2").addEventListener("click", () => {
+    controls.reset();
+    checkDrag = true;
+    p1_flag = true;
+    p2_flag = false;
+    p3_flag = true;
+    p4_flag = true;
+});
+document.getElementById("p3").addEventListener("click", () => {
+    controls.reset();
+    checkDrag = true;
+    p1_flag = true;
+    p2_flag = true;
+    p3_flag = false;
+    p4_flag = true;
+});
+document.getElementById("p4").addEventListener("click", () => {
+    controls.reset();
+    checkDrag = true;
+    p1_flag = true;
+    p2_flag = true;
+    p3_flag = true;
+    p4_flag = false;
+});
+
+//save canvas
+
+//save as img
+// imgSave
+document.getElementById("imgSave").addEventListener("click", () => {
+    var canvas = document.getElementById("myCanvasElement");
+
+    var url = canvas.toDataURL();
+
+    var link = document.createElement("a");
+
+    link.setAttribute("href", url);
+    link.setAttribute("target", "_blank");
+    link.setAttribute("download", "canvas.png");
+
+    link.click();
+});
+//save as pdf
+// pdfSave
+document.getElementById("pdfSave").addEventListener("click", () => {
+    var __CANVAS = document.getElementById("myCanvasElement");
+    let pdf;
+
+    let width = __CANVAS.width;
+    let height = __CANVAS.height;
+
+    //set the orientation
+    if (width > height) {
+        pdf = new jsPDF("l", "px", [width, height]);
+    } else {
+        pdf = new jsPDF("p", "px", [height, width]);
+    }
+    //then we get the dimensions from the 'pdf' file itself
+    width = pdf.internal.pageSize.getWidth();
+    height = pdf.internal.pageSize.getHeight();
+    pdf.addImage(__CANVAS, "PNG", 0, 0, width, height);
+    pdf.save("download.pdf");
 });
 
 function init() {
     //getting canvas
     var canvReference = document.getElementById("myCanvasElement");
+
+    window.addEventListener("load", () => {
+        setInterval(() => {
+            document.getElementById("loaderparent").style.display = "none";
+            document.getElementById("overlay").style.display = "none";
+        }, 500);
+    });
 
     //create scene
     scene = new THREE.Scene();
@@ -169,6 +373,7 @@ function init() {
     renderer = new THREE.WebGLRenderer({
         antialias: true,
         preserveDrawingBuffer: true,
+        canvas: canvReference,
     });
     renderer.setPixelRatio(window.devicePixelRatio);
 
@@ -180,119 +385,407 @@ function init() {
         1000
     );
 
-    camera.lookAt(scene.position);
-    camera.position.set(0, 0, 25);
+    camera.position.set(0, 0, 80);
 
-    renderer.setSize(window.innerWidth , window.innerHeight, false);
-    document.body.appendChild(renderer.domElement);
+    renderer.setSize(window.innerWidth, window.innerHeight, false);
 
     //setup light
-    let light = new THREE.HemisphereLight(0xffffbb, 0x080820, 0.8);
+    let light = new THREE.AmbientLight(0xffffff, 0.4);
 
     scene.add(light);
 
-    let DirectionalLightbt = new THREE.DirectionalLight(0xffffff, 0.7);
-    DirectionalLightbt.position.set(3, -8, 1.5);
+    // let DirectionalLightbt = new THREE.DirectionalLight(0xffffff, 0.3);
+    // DirectionalLightbt.position.set(120, 0, 0);
 
-    scene.add(DirectionalLightbt);
+    // scene.add(DirectionalLightbt);
 
-    let DirectionalLightside = new THREE.DirectionalLight(0xffffff, 0.5);
-    DirectionalLightside.position.set(7, 8, 0);
+    // let DirectionalLightside = new THREE.DirectionalLight(0xffffff, 0.2);
+    // DirectionalLightside.position.set(-120, 50, 0);
 
-    scene.add(DirectionalLightside);
+    // scene.add(DirectionalLightside);
 
-    let DirectionalLightside2 = new THREE.DirectionalLight(0xffffff, 0.5);
-    DirectionalLightside2.position.set(-7, 8, 0);
+    let DirectionalLightside2 = new THREE.DirectionalLight(0xffffff, 1);
+    DirectionalLightside2.position.set(0, 0, 100);
 
     scene.add(DirectionalLightside2);
+
+    let DirectionalLightside3 = new THREE.DirectionalLight(0xffffff, 0.4);
+    DirectionalLightside3.position.set(0, 0, -100);
+
+    scene.add(DirectionalLightside3);
+
+    let DirectionalLightside4 = new THREE.DirectionalLight(0xffffff, 0.5);
+    DirectionalLightside4.position.set(0, -100, 0);
+
+    scene.add(DirectionalLightside4);
+
+    let DirectionalLightside5 = new THREE.DirectionalLight(0xffffff, 0);
+    DirectionalLightside5.position.set(0, 200, 0);
+
+    scene.add(DirectionalLightside5);
+
+    //raycaster
 
     rayCast = new THREE.Raycaster();
     mouse = new THREE.Vector2();
     mouse.x = mouse.y = -1;
-    
 
-    const FBXloader = new FBXLoader();
     const GLTFloader = new GLTFLoader();
-    const OBJloader = new OBJLoader();
+    const FBXloader = new FBXLoader();
 
-    // FBXloader.load("asset/ss/source/a.fbx", function (gltf) {
-    //     obj = gltf;
-    //     console.log(obj);
-    //     var bbox = new THREE.Box3().setFromObject(obj);
-    //     var size = bbox.getSize(new THREE.Vector3());
-
-    //     var maxAxis = Math.max(size.x, size.y, size.z);
-    //     // console.log(maxAxis);
-    //     // obj.position.set(0, -5, 0);
-    //     obj.scale.multiplyScalar(6 / maxAxis);
-
-        
-
-    
-
-    GLTFloader.load(link, function (gltf) {
+    GLTFloader.load("asset/home/far/scene.gltf", function (gltf) {
         obj = gltf.scene;
         console.log(gltf);
         var bbox = new THREE.Box3().setFromObject(obj);
         var size = bbox.getSize(new THREE.Vector3());
 
         var maxAxis = Math.max(size.x, size.y, size.z);
-     
-        obj.scale.multiplyScalar(11 / maxAxis);
+        // console.log(maxAxis);
+        obj.position.set(0, -30, -57);
+        obj.rotation.set(0, Math.PI / 2, 0);
 
-        // obj.traverse(child => {
-        //     if (child.material ) {
-        //       child.material.map = new THREE.TextureLoader().load('./Wrinkle-Paper-Textures-2-Deeezy-4.jpeg');
-        //     console.log(child);
-        //     }
-        //   });
-
-          if (gltf.animations.length) {
-            mixer = new THREE.AnimationMixer(gltf.scene);
-            mixer.clipAction(gltf.animations[0]).play();
-        }
+        obj.scale.multiplyScalar(90 / maxAxis);
 
         //   console.log('ssss');
 
         scene.add(obj);
     });
 
-    
- 
+    //chair
+    GLTFloader.load("asset/home/SheenChair.glb", function (gltf) {
+        obj = gltf.scene;
+        console.log(gltf);
+        var bbox = new THREE.Box3().setFromObject(obj);
+        var size = bbox.getSize(new THREE.Vector3());
+
+        var maxAxis = Math.max(size.x, size.y, size.z);
+        // console.log(maxAxis);
+        obj.position.set(-65, -30, 76);
+        obj.rotation.set(0, 14.8, 0);
+
+        obj.scale.multiplyScalar(37 / maxAxis);
+
+        //   console.log('ssss');
+
+        scene.add(obj);
+    });
+
+    //wallpaper
+    GLTFloader.load("asset/home/wallpaper/scene.gltf", function (gltf) {
+        obj = gltf.scene;
+        console.log(gltf);
+        var bbox = new THREE.Box3().setFromObject(obj);
+        var size = bbox.getSize(new THREE.Vector3());
+
+        var maxAxis = Math.max(size.x, size.y, size.z);
+        // console.log(maxAxis);
+        obj.position.set(65, -30, 0);
+        obj.rotation.set(0, -Math.PI / 2, 0);
+
+        obj.scale.multiplyScalar(37 / maxAxis);
+
+        //   console.log('ssss');
+
+        scene.add(obj);
+    });
+
+    //light1
+    GLTFloader.load("asset/home/lamp/scene.gltf", function (gltf) {
+        obj = gltf.scene;
+        console.log(gltf);
+        var bbox = new THREE.Box3().setFromObject(obj);
+        var size = bbox.getSize(new THREE.Vector3());
+
+        var maxAxis = Math.max(size.x, size.y, size.z);
+        // console.log(maxAxis);
+        obj.position.set(-40, -10, -57);
+
+        obj.scale.multiplyScalar(37 / maxAxis);
+
+        //   console.log('ssss');
+
+        scene.add(obj);
+    });
+    //light2
+    GLTFloader.load("asset/home/lamp/scene.gltf", function (gltf) {
+        obj = gltf.scene;
+        console.log(gltf);
+        var bbox = new THREE.Box3().setFromObject(obj);
+        var size = bbox.getSize(new THREE.Vector3());
+
+        var maxAxis = Math.max(size.x, size.y, size.z);
+        // console.log(maxAxis);
+        obj.position.set(40, -10, -57);
+
+        obj.scale.multiplyScalar(37 / maxAxis);
+
+        //   console.log('ssss');
+
+        scene.add(obj);
+    });
+
+    //     //shelf
+
+    GLTFloader.load("asset/shelf/scene.gltf", function (gltf) {
+        obj = gltf.scene;
+        console.log(gltf);
+        var bbox = new THREE.Box3().setFromObject(obj);
+        var size = bbox.getSize(new THREE.Vector3());
+
+        var maxAxis = Math.max(size.x, size.y, size.z);
+        // console.log(maxAxis);
+        obj.position.set(-88, 0, 0);
+        obj.rotation.set(0, Math.PI / 2, 0);
+
+        obj.scale.multiplyScalar(30 / maxAxis);
+
+        //   console.log('ssss');
+
+        scene.add(obj);
+    });
+
+    //create room
+    let geometry = new THREE.BoxGeometry(200, 200, 0.1);
+
+    mesh = new THREE.Mesh(
+        geometry,
+        new THREE.MeshStandardMaterial({
+            color: "white",
+            side: THREE.DoubleSide,
+        })
+    );
+
+    mesh.position.y = 50;
+    mesh.rotation.x = -Math.PI / 2;
+    mesh.name = "roof";
+    wallUp = mesh;
+    scene.add(mesh);
+
+    //.....................................
+    geometry = new THREE.BoxGeometry(200, 200, 0.1);
+
+    material3 = new THREE.MeshStandardMaterial({
+        envMap: cubeRenderTarget2.texture,
+        roughness: 0.05,
+        metalness: 0.5,
+        side: THREE.DoubleSide,
+        map: new THREE.TextureLoader().load("/texture/fd.jpeg", (texture) => {
+            //side wall
+            texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+            texture.offset.set(0, 0);
+            texture.repeat.set(10, 12);
+        }),
+    });
+
+    mesh = new THREE.Mesh(geometry, material3);
+    mesh.position.y = -30;
+    mesh.material.flatShading = true;
+    mesh.rotation.x = -Math.PI / 2;
+    mesh.name = "floor";
+    wallDown = mesh;
+    scene.add(mesh);
+    //......................................
+    //
+
+    geometry = new THREE.BoxGeometry(200, 80, 0.1);
+
+    mesh = new THREE.Mesh(
+        geometry,
+        new THREE.MeshStandardMaterial({
+            color: "white",
+            side: THREE.DoubleSide,
+            map: new THREE.TextureLoader().load("/texture/sidewall1.jpg"),
+        })
+    );
+
+    mesh.position.z = -100;
+    mesh.position.y = 10;
+
+    wallBack = mesh;
+    scene.add(mesh);
+
+    geometry = new THREE.BoxGeometry(200, 80, 0.1);
+
+    mesh = new THREE.Mesh(
+        geometry,
+        new THREE.MeshStandardMaterial({
+            color: "white",
+            side: THREE.BackSide,
+            //belkuni
+            map: new THREE.TextureLoader().load("/texture/belkony.jpg"),
+        })
+    );
+
+    mesh.position.z = 100;
+    mesh.position.y = 10;
+
+    wallFont = mesh;
+    scene.add(mesh);
+
+    geometry = new THREE.BoxGeometry(200, 80, 0.1);
+
+    material2 = new THREE.MeshStandardMaterial({
+        envMap: cubeRenderTarget2.texture,
+        roughness: 0.05,
+        metalness: 0.3,
+        side: THREE.DoubleSide,
+        map: new THREE.TextureLoader().load(
+            "/texture/wallTextureSide.jpeg",
+            (texture) => {
+                //side wall
+                texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+                texture.offset.set(0, 0);
+                texture.repeat.set(10, 12);
+            }
+        ),
+    });
+
+    mesh = new THREE.Mesh(geometry, material2);
+    mesh.name = "rightWall";
+    mesh.position.y = 10;
+    mesh.position.x = 100;
+    mesh.rotation.y = -Math.PI / 2;
+    wallRight = mesh;
+    scene.add(mesh);
+    //.........................................
+
+    geometry = new THREE.BoxGeometry(200, 80, 0.1);
+
+    material1 = new THREE.MeshStandardMaterial({
+        envMap: cubeRenderTarget2.texture,
+        roughness: 0.1,
+        metalness: 0.5,
+        side: THREE.DoubleSide,
+        map: new THREE.TextureLoader().load(
+            "/texture/wallTextureSide.jpeg",
+            (texture) => {
+                //side wall
+                texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+                texture.offset.set(0, 0);
+                texture.repeat.set(10, 12);
+            }
+        ),
+    });
+
+    mesh = new THREE.Mesh(geometry, material1);
+    mesh.name = "leftWall";
+    mesh.position.y = 10;
+    mesh.position.x = -100;
+    mesh.rotation.y = -Math.PI / 2;
+    wallLeft = mesh;
+
+    scene.add(mesh);
+
+    const box = new THREE.Box3().setFromObject(mesh);
 
     //setup orbit controller
     controls = new OrbitControls(camera, renderer.domElement);
-    controls.target.set(0, 0, 0);
-    // controls.autoRotate = true;
-    controls.screenSpacePanning = false;
+    controls.minDistance = 25;
+    controls.maxDistance = 80;
+
+    controls.minPolarAngle = Math.PI / 3.5; // radians
+    controls.maxPolarAngle = (2 * Math.PI) / 3.4;
+
     controls.update();
 
     renderer.setAnimationLoop(render);
 
     //for responsiveness
     window.addEventListener("resize", onWindowResize);
+
+    var mouseIsDown = false;
+    var idTimeout;
+
+    // window.addEventListener('click', () => {
+    //     alert('siam')
+    // })
+    document.addEventListener("pointerdown", function () {
+        mouseIsDown = true;
+        idTimeout = setTimeout(function () {
+            if (mouseIsDown) {
+                checkDrag = true;
+                return 0;
+            }
+        }, 200);
+
+        checkDrag = false;
+    });
+
+    document.addEventListener("pointerup", function () {
+        clearTimeout(idTimeout);
+        mouseIsDown = false;
+    });
+
     document.addEventListener("click", clickHandler);
 }
 
 function onWindowResize() {
-    
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
 
-    renderer.setSize(window.innerWidth , window.innerHeight, false);
+    renderer.setSize(window.innerWidth, window.innerHeight, false);
 
     // renderer.setSize(window.innerWidth, window.innerHeight, false);
     render();
 }
 
 function render() {
+    cubeCamera2.update(renderer, scene);
+    material1.envMap = cubeRenderTarget2.texture;
+    material2.envMap = cubeRenderTarget2.texture;
+    material3.envMap = cubeRenderTarget2.texture;
+
     if (mixer) mixer.update(clock.getDelta());
 
-    controls.update();
+    if (p1_flag === false) {
+        if (scene.rotation.y < 3.6) {
+            console.log(scene.rotation.y);
+            scene.rotation.y += 0.05;
+        } else if (scene.rotation.y < 3.59) {
+            console.log(scene.rotation.y);
+            scene.rotation.y -= 0.05;
+        }
+    }
+    if (p2_flag === false) {
+        if (scene.rotation.y < 2.349) {
+            // console.log(scene.rotation.y);
+            scene.rotation.y += 0.05;
+        } else if (scene.rotation.y > 2.399) {
+            console.log("siam");
+            scene.rotation.y -= 0.05;
+        }
+    }
+    if (p3_flag === false) {
+        if (scene.rotation.y < 1.35) {
+            console.log(scene.rotation.y);
+            scene.rotation.y += 0.05;
+        } else if (scene.rotation.y > 1.4) {
+            console.log(scene.rotation.y);
+            scene.rotation.y -= 0.05;
+        }
+    }
+    if (p4_flag === false) {
+        if (scene.rotation.y > -0.8) {
+            scene.rotation.y -= 0.05;
+        }
+    }
+
+    const distanceX = camera.position.distanceTo(controls.target);
+    let px = (80 - distanceX) / 100;
+
+    // console.log(distanceX);
+    if (distanceX < 48) {
+        controls.minPolarAngle = 0; // radians
+        controls.maxPolarAngle = (2 * Math.PI) / 3.4;
+    } else if (distanceX < 65) {
+        controls.minPolarAngle = 0.7;
+    } else {
+        controls.minPolarAngle = Math.PI / 3.5; // radians
+        controls.maxPolarAngle = (2 * Math.PI) / 3.4;
+    }
+
     renderer.render(scene, camera);
 }
 
-
 init();
 render();
-
