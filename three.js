@@ -22,37 +22,54 @@ let camera,
     INTERSECTED,
     textureLink,
     spotLight1,
-    spotLight2;
+    spotLight2,
+    checkDrag = false,
+    material1,
+    material2,
+    material3,
+    mesh;
+
+
+    let wallUp, wallDown, wallRight, wallLeft, wallFont, wallBack;
+
+let cubeRenderTarget2 = new THREE.WebGLCubeRenderTarget(50);
+
+let cubeCamera2 = new THREE.CubeCamera(1, 1000, cubeRenderTarget2);
 
 const clock = new THREE.Clock();
 
 let link = "asset/home/testRoom.glb";
 const clickHandler = (e) => {
-    
     mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
     mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
     mouse.z = 1;
     rayCast.setFromCamera(mouse, camera);
 
     var intersects = rayCast.intersectObjects(scene.children);
-    
+    // wrapperForFloor
 
-    if (intersects[intersects.length - 1].object.name === "roof") {
-        document.querySelector(".wrapperForselling").style.right = "0";
-        document.querySelector(".wrapper").style.right = "-100%";
-        document.querySelector(".wrapperForFloor").style.right = "-100%";
-    } 
-    else if (
-        intersects[intersects.length - 1].object.name === "rightWall" ||
-        intersects[intersects.length - 1].object.name === "leftWall"
-    ) {
-        document.querySelector(".wrapper").style.right = "0";
-        document.querySelector(".wrapperForselling").style.right = "-100%";
-        document.querySelector(".wrapperForFloor").style.right = "-100%";
-    } else if (intersects[intersects.length - 1].object.name === "floor") {
-        document.querySelector(".wrapper").style.right = "-100%";
-        document.querySelector(".wrapperForselling").style.right = "-100%";
-        document.querySelector(".wrapperForFloor").style.right = "0";
+    if (checkDrag === false) {
+        if (intersects[intersects.length - 1].object.name === "roof") {
+            document.querySelector(".wrapperForselling").style.right = "0";
+            document.querySelector(".wrapper").style.right = "-100%";
+            document.querySelector(".wrapperForFloor").style.right = "-100%";
+        } else if (
+            intersects[intersects.length - 1].object.name === "rightWall" ||
+            intersects[intersects.length - 1].object.name === "leftWall"
+        ) {
+            document.getElementById('arrowBtn1').style.right = '100px'
+            document.querySelector(".wrapper").style.right = "0";
+            document.querySelector(".wrapperForselling").style.right = "-100%";
+            document.querySelector(".wrapperForFloor").style.right = "-100%";
+        } else if (intersects[intersects.length - 1].object.name === "floor") {
+            document.querySelector(".wrapper").style.right = "-100%";
+            document.querySelector(".wrapperForselling").style.right = "-100%";
+            document.querySelector(".wrapperForFloor").style.right = "0";
+        } else {
+            document.querySelector(".wrapper").style.right = "-100%";
+            document.querySelector(".wrapperForselling").style.right = "-100%";
+            document.querySelector(".wrapperForFloor").style.right = "-100%";
+        }
     } else {
         document.querySelector(".wrapper").style.right = "-100%";
         document.querySelector(".wrapperForselling").style.right = "-100%";
@@ -81,43 +98,44 @@ overlay3.addEventListener("click", function (ev) {
     ev.stopPropagation();
 });
 
+document.getElementById('cancel1').addEventListener('click', () => {
+    document.querySelector(".wrapper").style.right = "-100%";
+    document.querySelector(".wrapperForselling").style.right = "-100%";
+    document.querySelector(".wrapperForFloor").style.right = "-100%";
+})
 
 //color
 document.getElementById("favcolor").addEventListener("change", () => {
     INTERSECTED.material.color.set(document.getElementById("favcolor").value);
     document.querySelector(".wrapper").style.right = "-100%";
-        document.querySelector(".wrapperForselling").style.right = "-100%";
-        document.querySelector(".wrapperForFloor").style.right = "-100%";
+    document.querySelector(".wrapperForselling").style.right = "-100%";
+    document.querySelector(".wrapperForFloor").style.right = "-100%";
 });
 
 let changeTexture = (textureLink) => {
     let x = new THREE.TextureLoader().load(textureLink, function (texture) {
-        
         texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
         texture.offset.set(0, 0);
         texture.repeat.set(10, 12);
-
     });
     INTERSECTED.material.map = x;
     document.querySelector(".wrapper").style.right = "-100%";
-        document.querySelector(".wrapperForselling").style.right = "-100%";
-        document.querySelector(".wrapperForFloor").style.right = "-100%";
+    document.querySelector(".wrapperForselling").style.right = "-100%";
+    document.querySelector(".wrapperForFloor").style.right = "-100%";
 };
 let changeTextureAngel = (textureLink) => {
     INTERSECTED.material.map.rotation = THREE.Math.degToRad(angel);
     document.querySelector(".wrapper").style.right = "-100%";
-        document.querySelector(".wrapperForselling").style.right = "-100%";
-        document.querySelector(".wrapperForFloor").style.right = "-100%";
-   
+    document.querySelector(".wrapperForselling").style.right = "-100%";
+    document.querySelector(".wrapperForFloor").style.right = "-100%";
 };
 
 document.getElementById("t1").addEventListener("click", () => {
-    textureLink =
-    './texture/wd.jpeg';
+    textureLink = "./texture/wd.jpeg";
     changeTexture(textureLink);
 });
 document.getElementById("t2").addEventListener("click", () => {
-    textureLink = './texture/wp1.jpeg';
+    textureLink = "./texture/wp1.jpeg";
     changeTexture(textureLink);
 });
 
@@ -179,25 +197,33 @@ document.getElementById("180f").addEventListener("click", () => {
 //scene rotation
 let p1_flag, p2_flag, p3_flag, p4_flag;
 document.getElementById("p1").addEventListener("click", () => {
-    controls.target.set(0, 0, 0);
+    controls.reset();
+    checkDrag = true;
+    scene.rotation.y = 0;
     p1_flag = false;
     p2_flag = true;
     p3_flag = true;
     p4_flag = true;
 });
 document.getElementById("p2").addEventListener("click", () => {
+    controls.reset();
+    checkDrag = true;
     p1_flag = true;
     p2_flag = false;
     p3_flag = true;
     p4_flag = true;
 });
 document.getElementById("p3").addEventListener("click", () => {
+    controls.reset();
+    checkDrag = true;
     p1_flag = true;
     p2_flag = true;
     p3_flag = false;
     p4_flag = true;
 });
 document.getElementById("p4").addEventListener("click", () => {
+    controls.reset();
+    checkDrag = true;
     p1_flag = true;
     p2_flag = true;
     p3_flag = true;
@@ -246,6 +272,15 @@ document.getElementById("pdfSave").addEventListener("click", () => {
 function init() {
     //getting canvas
     var canvReference = document.getElementById("myCanvasElement");
+    
+    window.addEventListener('load', () => {
+        setInterval(() => {
+            document.getElementById('loaderparent').style.display = 'none';
+            document.getElementById('overlay').style.display = 'none';
+        }, 500);
+
+        
+    })
 
     //create scene
     scene = new THREE.Scene();
@@ -267,9 +302,8 @@ function init() {
         1000
     );
 
-    camera.lookAt(scene.position);
+    
     camera.position.set(0, 0, 80);
-    // camera.lookAt(new THREE.Vector3(0, 0, 0));
 
     renderer.setSize(window.innerWidth, window.innerHeight, false);
 
@@ -278,33 +312,33 @@ function init() {
 
     scene.add(light);
 
-    let DirectionalLightbt = new THREE.DirectionalLight(0xffffff, 0.3);
-    DirectionalLightbt.position.set(90, 0, 0);
+    // let DirectionalLightbt = new THREE.DirectionalLight(0xffffff, 0.3);
+    // DirectionalLightbt.position.set(120, 0, 0);
 
-    scene.add(DirectionalLightbt);
+    // scene.add(DirectionalLightbt);
 
-    let DirectionalLightside = new THREE.DirectionalLight(0xffffff, 0.4);
-    DirectionalLightside.position.set(-90, 0, 0);
+    // let DirectionalLightside = new THREE.DirectionalLight(0xffffff, 0.2);
+    // DirectionalLightside.position.set(-120, 50, 0);
 
-    scene.add(DirectionalLightside);
+    // scene.add(DirectionalLightside);
 
     let DirectionalLightside2 = new THREE.DirectionalLight(0xffffff, 1);
-    DirectionalLightside2.position.set(0, 0, 80);
+    DirectionalLightside2.position.set(0, 0, 100);
 
     scene.add(DirectionalLightside2);
 
     let DirectionalLightside3 = new THREE.DirectionalLight(0xffffff, 0.4);
-    DirectionalLightside3.position.set(0, 0, -80);
+    DirectionalLightside3.position.set(0, 0, -100);
 
     scene.add(DirectionalLightside3);
 
     let DirectionalLightside4 = new THREE.DirectionalLight(0xffffff, 0.5);
-    DirectionalLightside4.position.set(0, -30, 0);
+    DirectionalLightside4.position.set(0, -100, 0);
 
     scene.add(DirectionalLightside4);
 
-    let DirectionalLightside5 = new THREE.DirectionalLight(0xffffff, 0.5);
-    DirectionalLightside5.position.set(0, 30, 0);
+    let DirectionalLightside5 = new THREE.DirectionalLight(0xffffff, 0);
+    DirectionalLightside5.position.set(0, 200, 0);
 
     scene.add(DirectionalLightside5);
 
@@ -431,7 +465,7 @@ function init() {
     //create room
     let geometry = new THREE.BoxGeometry(200, 200, 0.1);
 
-    let mesh = new THREE.Mesh(
+    mesh = new THREE.Mesh(
         geometry,
         new THREE.MeshStandardMaterial({
             color: "white",
@@ -442,30 +476,34 @@ function init() {
     mesh.position.y = 50;
     mesh.rotation.x = -Math.PI / 2;
     mesh.name = "roof";
+    wallUp = mesh;
     scene.add(mesh);
 
+    //.....................................
     geometry = new THREE.BoxGeometry(200, 200, 0.1);
 
-    mesh = new THREE.Mesh(
-        geometry,
-        new THREE.MeshStandardMaterial({
-            color: "white",
-            side: THREE.DoubleSide,
-            map: new THREE.TextureLoader().load(
-                "/texture/fd.jpeg",
-                (texture) => {
-                    //side wall
-                    texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
-                    texture.offset.set(0, 0);
-                    texture.repeat.set(10, 12);
-                }
-            ),
-        })
-    );
+    material3 = new THREE.MeshStandardMaterial({
+        envMap: cubeRenderTarget2.texture,
+        roughness: 0.05,
+        metalness: 0.5,
+        side: THREE.DoubleSide,
+        map: new THREE.TextureLoader().load("/texture/fd.jpeg", (texture) => {
+            //side wall
+            texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+            texture.offset.set(0, 0);
+            texture.repeat.set(10, 12);
+        }),
+    });
+
+    mesh = new THREE.Mesh(geometry, material3);
     mesh.position.y = -30;
+    mesh.material.flatShading = true;
     mesh.rotation.x = -Math.PI / 2;
     mesh.name = "floor";
+    wallDown = mesh;
     scene.add(mesh);
+    //......................................
+    //
 
     geometry = new THREE.BoxGeometry(200, 80, 0.1);
 
@@ -481,6 +519,7 @@ function init() {
     mesh.position.z = -100;
     mesh.position.y = 10;
 
+    wallBack = mesh;
     scene.add(mesh);
 
     geometry = new THREE.BoxGeometry(200, 80, 0.1);
@@ -498,68 +537,72 @@ function init() {
     mesh.position.z = 100;
     mesh.position.y = 10;
 
+    wallFont = mesh;
     scene.add(mesh);
 
     geometry = new THREE.BoxGeometry(200, 80, 0.1);
 
-    mesh = new THREE.Mesh(
-        geometry,
-        new THREE.MeshStandardMaterial({
-            color: "white",
-            side: THREE.DoubleSide,
-            map: new THREE.TextureLoader().load(
-                "/texture/wallTextureSide.jpeg",
-                (texture) => {
-                    //side wall
-                    texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
-                    texture.offset.set(0, 0);
-                    texture.repeat.set(10, 12);
-                }
-            ),
-        })
-    );
+    material2 = new THREE.MeshStandardMaterial({
+        envMap: cubeRenderTarget2.texture,
+        roughness: 0.05,
+        metalness: 0.3,
+        side: THREE.DoubleSide,
+        map: new THREE.TextureLoader().load(
+            "/texture/wallTextureSide.jpeg",
+            (texture) => {
+                //side wall
+                texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+                texture.offset.set(0, 0);
+                texture.repeat.set(10, 12);
+            }
+        ),
+    });
+
+    mesh = new THREE.Mesh(geometry, material2);
     mesh.name = "rightWall";
     mesh.position.y = 10;
     mesh.position.x = 100;
     mesh.rotation.y = -Math.PI / 2;
-
+    wallRight = mesh;
     scene.add(mesh);
+    //.........................................
 
     geometry = new THREE.BoxGeometry(200, 80, 0.1);
 
-    mesh = new THREE.Mesh(
-        geometry,
-        new THREE.MeshStandardMaterial({
-            color: "white",
-            side: THREE.DoubleSide,
-            map: new THREE.TextureLoader().load(
-                "/texture/wallTextureSide.jpeg",
-                (texture) => {
-                    //side wall
-                    texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
-                    texture.offset.set(0, 0);
-                    texture.repeat.set(10, 12);
-                }
-            ),
-        })
-    );
+    material1 = new THREE.MeshStandardMaterial({
+        envMap: cubeRenderTarget2.texture,
+        roughness: 0.1,
+        metalness: 0.5,
+        side: THREE.DoubleSide,
+        map: new THREE.TextureLoader().load(
+            "/texture/wallTextureSide.jpeg",
+            (texture) => {
+                //side wall
+                texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+                texture.offset.set(0, 0);
+                texture.repeat.set(10, 12);
+            }
+        ),
+    });
+
+    mesh = new THREE.Mesh(geometry, material1);
     mesh.name = "leftWall";
     mesh.position.y = 10;
     mesh.position.x = -100;
     mesh.rotation.y = -Math.PI / 2;
+    wallLeft = mesh;
 
     scene.add(mesh);
 
     const box = new THREE.Box3().setFromObject(mesh);
 
-    const boxSize = box.getSize(new THREE.Vector3()).length();
-    const boxCenter = box.getCenter(new THREE.Vector3());
-    const halfSizeToFitOnScreen = boxSize * 0.5;
-    const halfFovY = THREE.Math.degToRad(camera.fov * 0.5);
-    const distance = halfSizeToFitOnScreen / Math.tan(halfFovY);
-
     //setup orbit controller
     controls = new OrbitControls(camera, renderer.domElement);
+    controls.minDistance = 25;
+    controls.maxDistance = 80;
+
+    controls.minPolarAngle = Math.PI / 3.5; // radians
+    controls.maxPolarAngle = (2 * Math.PI) / 3.4;
 
     controls.update();
 
@@ -567,25 +610,28 @@ function init() {
 
     //for responsiveness
     window.addEventListener("resize", onWindowResize);
+
     var mouseIsDown = false;
     var idTimeout;
 
-    // document.getElementById('siam').addEventListener('click', () => {
+    // window.addEventListener('click', () => {
     //     alert('siam')
     // })
-    document.getElementById('siam').addEventListener('mousedown', function() {
-        
-    mouseIsDown = true;
-    idTimeout = setTimeout(function() {
-        if(mouseIsDown) {
-            alert('siam')
-        }
-    }, 20);
+    document.addEventListener("pointerdown", function () {
+        mouseIsDown = true;
+        idTimeout = setTimeout(function () {
+            if (mouseIsDown) {
+                checkDrag = true;
+                return 0;
+            }
+        }, 200);
+
+        checkDrag = false;
     });
 
-    window.addEventListener('mouseup', function() {
-    clearTimeout(idTimeout);
-    mouseIsDown = false;
+    document.addEventListener("pointerup", function () {
+        clearTimeout(idTimeout);
+        mouseIsDown = false;
     });
 
     document.addEventListener("click", clickHandler);
@@ -602,6 +648,11 @@ function onWindowResize() {
 }
 
 function render() {
+    cubeCamera2.update(renderer, scene);
+    material1.envMap = cubeRenderTarget2.texture;
+    material2.envMap = cubeRenderTarget2.texture;
+    material3.envMap = cubeRenderTarget2.texture;
+
     if (mixer) mixer.update(clock.getDelta());
 
     if (p1_flag === false) {
@@ -637,9 +688,19 @@ function render() {
         }
     }
 
-    // scene.rotation.y += 0.005;
+    const distanceX = camera.position.distanceTo(controls.target);
+    let px = (80 - distanceX) / 100;
 
-    // console.log(scene.rotation.y);
+    // console.log(distanceX);
+    if (distanceX < 48) {
+        controls.minPolarAngle = 0; // radians
+        controls.maxPolarAngle = (2 * Math.PI) / 3.4;
+    } else if (distanceX < 65) {
+        controls.minPolarAngle = 0.7;
+    } else {
+        controls.minPolarAngle = Math.PI / 3.5; // radians
+        controls.maxPolarAngle = (2 * Math.PI) / 3.4;
+    }
 
     renderer.render(scene, camera);
 }
