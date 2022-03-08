@@ -34,18 +34,18 @@ let arrowCheck1 = true,
 
 let wallUp, wallDown, wallRight, wallLeft, wallFont, wallBack;
 
-let cubeRenderTarget1 = new THREE.WebGLCubeRenderTarget(0, {
+let cubeRenderTarget1 = new THREE.WebGLCubeRenderTarget(500, {
     generateMipmaps: true,
     minFilter: true,
 });
-let cubeRenderTarget2 = new THREE.WebGLCubeRenderTarget(50, {
+let cubeRenderTarget2 = new THREE.WebGLCubeRenderTarget(500, {
     generateMipmaps: true,
     minFilter: true,
 });
-
-let cubeCamera1 = new THREE.CubeCamera(1, 0, cubeRenderTarget1);
-
-let cubeCamera2 = new THREE.CubeCamera(1, 90, cubeRenderTarget2);
+let cubeRenderTarget3 = new THREE.WebGLCubeRenderTarget(500, {
+    generateMipmaps: true,
+    minFilter: true,
+});
 
 const clock = new THREE.Clock();
 
@@ -161,8 +161,10 @@ let changeTexture = (textureLink) => {
         texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
         texture.offset.set(0, 0);
         texture.repeat.set(10, 12);
+        // texture.anisotropy = 46;
     });
     INTERSECTED.material.map = x;
+    INTERSECTED.material.opacity = 0.6;
 };
 let changeTextureAngel = () => {
     INTERSECTED.material.map.rotation = THREE.Math.degToRad(angel);
@@ -377,6 +379,7 @@ function init() {
     //create scene
     scene = new THREE.Scene();
     // scene.background = new THREE.Color("white");
+    scene.rotation.set(0, 0, 0);
 
     //set resderer
     renderer = new THREE.WebGLRenderer({
@@ -385,6 +388,8 @@ function init() {
         canvas: canvReference,
     });
     renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
     //setup camera
     camera = new THREE.PerspectiveCamera(
@@ -404,22 +409,22 @@ function init() {
     scene.add(light);
 
     let DirectionalLightbt = new THREE.DirectionalLight(0xffffff, 0.3);
-    DirectionalLightbt.position.set(0, 0, -50);
+    DirectionalLightbt.position.set(0, 0, -10);
+
+    DirectionalLightbt.shadow.mapSize.width = 512; // default
+    DirectionalLightbt.shadow.mapSize.height = 512; // default
+    DirectionalLightbt.shadow.camera.near = 0.5; // default
+    DirectionalLightbt.shadow.camera.far = 500; // default
 
     scene.add(DirectionalLightbt);
 
-    const pointLight1 = new THREE.PointLight( 0xffffff, 0.4, 60 );
-    pointLight1.position.set( -40, 13, -56 );
-    scene.add( pointLight1 );
+    const pointLight1 = new THREE.PointLight(0xffffff, 0.4, 60);
+    pointLight1.position.set(-40, 13, -56);
+    scene.add(pointLight1);
 
-    const pointLight = new THREE.PointLight( 0xffffff, 0.4, 60 );
-    pointLight.position.set( 40, 13, -56 );
-    scene.add( pointLight );
-
-    // let DirectionalLightside = new THREE.DirectionalLight(0xffffff, 0.2);
-    // DirectionalLightside.position.set(-120, 50, 0);
-
-    // scene.add(DirectionalLightside);
+    const pointLight = new THREE.PointLight(0xffffff, 0.4, 60);
+    pointLight.position.set(40, 13, -56);
+    scene.add(pointLight);
 
     // let DirectionalLightside2 = new THREE.DirectionalLight(0xffffff, 1);
     // DirectionalLightside2.position.set(0, 0, 100);
@@ -481,6 +486,9 @@ function init() {
         obj.rotation.set(0, 14.8, 0);
 
         obj.scale.multiplyScalar(37 / maxAxis);
+
+        obj.castShadow = true;
+        obj.receiveShadow = true;
 
         //   console.log('ssss');
 
@@ -581,26 +589,43 @@ function init() {
     //.....................................
     geometry = new THREE.BoxGeometry(200, 200, 0.1);
 
-    material3 = new THREE.MeshStandardMaterial({
-        envMap: cubeCamera1.texture,
-        roughness: 0.05,
-        metalness: 0.5,
+    const groundMirror = new Reflector(geometry, {
+        clipBias: 0.003,
+        textureWidth: window.innerWidth * window.devicePixelRatio,
+        textureHeight: window.innerHeight * window.devicePixelRatio,
+        color: 0x777777,
+    });
+    groundMirror.position.y = -30.01;
+    groundMirror.material.flatShading = true;
+    groundMirror.rotation.x = -Math.PI / 2;
+    scene.add(groundMirror);
+
+    let floor;
+
+    material1 = new THREE.MeshBasicMaterial({
+        transparent: true,
+        color: "#e6eaed",
+        opacity: 0.65,
+
         side: THREE.DoubleSide,
-        map: new THREE.TextureLoader().load("/texture/fd.jpeg", (texture) => {
-            //side wall
-            texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
-            texture.offset.set(0, 0);
-            texture.repeat.set(10, 12);
-        }),
+        map: new THREE.TextureLoader().load(
+            "/texture/testTexture.jpeg",
+            (texture) => {
+                //side wall
+                texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+                texture.offset.set(0, 0);
+                texture.repeat.set(10, 12);
+            }
+        ),
     });
 
-    mesh = new THREE.Mesh(geometry, material3);
-    mesh.position.y = -30;
-    mesh.material.flatShading = true;
-    mesh.rotation.x = -Math.PI / 2;
-    mesh.name = "floor";
-    wallDown = mesh;
-    scene.add(mesh);
+    floor = new THREE.Mesh(geometry, material1);
+    floor.position.y = -30;
+    floor.material.flatShading = true;
+    floor.rotation.x = -Math.PI / 2;
+    floor.name = "floor";
+    wallDown = floor;
+    scene.add(floor);
     //......................................
     //
 
@@ -638,16 +663,33 @@ function init() {
 
     wallFont = mesh;
     scene.add(mesh);
+    
+    //..............................
 
     geometry = new THREE.BoxGeometry(200, 80, 0.1);
 
-    material2 = new THREE.MeshStandardMaterial({
-        envMap: cubeRenderTarget2.texture,
-        roughness: 0.05,
-        metalness: 0.3,
+    const rightMirror = new Reflector(geometry, {
+        clipBias: 0.003,
+        textureWidth: window.innerWidth * window.devicePixelRatio,
+        textureHeight: window.innerHeight * window.devicePixelRatio,
+        color: 0x777777,
+    });
+    rightMirror.position.y = 10;
+    rightMirror.material.flatShading = true;
+    rightMirror.position.x = 100.01;
+    rightMirror.rotation.y = -Math.PI / 2;
+    scene.add(rightMirror);
+
+    material2 = new THREE.MeshLambertMaterial({
+        color: '#c9cdd1',
+        transparent: true,
+        opacity: 0.65,
+        // reflectivity: 0.1,
+        // roughness: 0.05,
+        // metalness: 0.5,
         side: THREE.DoubleSide,
         map: new THREE.TextureLoader().load(
-            "/texture/wallTextureSide.jpeg",
+            "/texture/testTexture.jpeg",
             (texture) => {
                 //side wall
                 texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
@@ -663,18 +705,32 @@ function init() {
     mesh.position.x = 100;
     mesh.rotation.y = -Math.PI / 2;
     wallRight = mesh;
-    scene.add(mesh);
+    scene.add(wallRight);
     //.........................................
 
     geometry = new THREE.BoxGeometry(200, 80, 0.1);
 
-    material1 = new THREE.MeshStandardMaterial({
-        envMap: cubeRenderTarget2.texture,
-        roughness: 0.1,
-        metalness: 0.5,
+    const leftMirror = new Reflector(geometry, {
+        clipBias: 0.003,
+        textureWidth: window.innerWidth * window.devicePixelRatio,
+        textureHeight: window.innerHeight * window.devicePixelRatio,
+        color: 0x777777,
+    });
+    leftMirror.position.y = 10;
+    leftMirror.material.flatShading = true;
+    leftMirror.position.x = -100.01;
+    leftMirror.rotation.y = Math.PI / 2;
+    scene.add(leftMirror);
+
+    material1 = new THREE.MeshLambertMaterial({
+        color: '#c9cdd1',
+        transparent: true,
+        opacity: 0.65,
+        // roughness: 0.05,
+        // metalness: 0.5,
         side: THREE.DoubleSide,
         map: new THREE.TextureLoader().load(
-            "/texture/wallTextureSide.jpeg",
+            "/texture/testTexture.jpeg",
             (texture) => {
                 //side wall
                 texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
@@ -691,7 +747,7 @@ function init() {
     mesh.rotation.y = -Math.PI / 2;
     wallLeft = mesh;
 
-    scene.add(mesh);
+    scene.add(wallLeft);
 
     const box = new THREE.Box3().setFromObject(mesh);
 
@@ -702,6 +758,7 @@ function init() {
 
     controls.minPolarAngle = Math.PI / 3.5; // radians
     controls.maxPolarAngle = (2 * Math.PI) / 3.4;
+    controls.reset();
 
     controls.update();
 
@@ -747,10 +804,20 @@ function onWindowResize() {
 }
 
 function render() {
-    cubeCamera2.update(renderer, scene);
-    material1.envMap = cubeRenderTarget2.texture;
-    material2.envMap = cubeRenderTarget2.texture;
-    material3.envMap = cubeRenderTarget2.texture;
+    // // wallDown.visible = false;
+    // cubeCamera1.position.copy(wallDown.position);
+    // cubeCamera1.update(renderer, scene);
+    // // wallDown.visible = true;
+
+    // cubeCamera2.position.copy(wallLeft.position);
+    // cubeCamera2.update(renderer, scene);
+
+    // cubeCamera3.position.set(100, 0, 35);
+    // cubeCamera3.update(renderer, scene);
+
+    // material1.envMap = cubeRenderTarget2.texture;
+    // material2.envMap = cubeRenderTarget3.texture;
+    // material3.envMap = cubeRenderTarget1.texture;
 
     if (mixer) mixer.update(clock.getDelta());
 
