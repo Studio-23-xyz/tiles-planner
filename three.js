@@ -175,7 +175,7 @@ document.getElementById("t1").addEventListener("click", () => {
     document.getElementById("arrowBtn1").classList.add("rotation");
     arrowCheck1 = false;
     arrowCheck2 = true;
-    textureLink = "./texture/wd.jpeg";
+    textureLink = "./texture/wallTextureSide.jpeg";
     changeTexture(textureLink);
 });
 document.getElementById("t2").addEventListener("click", () => {
@@ -425,6 +425,9 @@ function init() {
     const pointLight = new THREE.PointLight(0xffffff, 0.4, 60);
     pointLight.position.set(40, 13, -56);
     scene.add(pointLight);
+    const pointLight2 = new THREE.PointLight(0xffffff, 2, 50);
+    pointLight2.position.set(0, 0, -10);
+    scene.add(pointLight2);
 
     // let DirectionalLightside2 = new THREE.DirectionalLight(0xffffff, 1);
     // DirectionalLightside2.position.set(0, 0, 100);
@@ -455,7 +458,7 @@ function init() {
     const GLTFloader = new GLTFLoader();
     const FBXloader = new FBXLoader();
 
-    GLTFloader.load("asset/home/far/scene.gltf", function (gltf) {
+    GLTFloader.load("asset/bed/scene.gltf", function (gltf) {
         obj = gltf.scene;
         console.log(gltf);
         var bbox = new THREE.Box3().setFromObject(obj);
@@ -463,8 +466,8 @@ function init() {
 
         var maxAxis = Math.max(size.x, size.y, size.z);
         // console.log(maxAxis);
-        obj.position.set(0, -30, -57);
-        obj.rotation.set(0, Math.PI / 2, 0);
+        obj.position.set(0, -30, -45);
+        // obj.rotation.set(0, Math.PI / 2, 0);
 
         obj.scale.multiplyScalar(90 / maxAxis);
 
@@ -681,7 +684,7 @@ function init() {
     scene.add(rightMirror);
 
     material2 = new THREE.MeshLambertMaterial({
-        color: '#c9cdd1',
+        color: '#e4e9f2',
         transparent: true,
         opacity: 0.65,
         // reflectivity: 0.1,
@@ -723,7 +726,7 @@ function init() {
     scene.add(leftMirror);
 
     material1 = new THREE.MeshLambertMaterial({
-        color: '#c9cdd1',
+        color: '#e4e9f2',
         transparent: true,
         opacity: 0.65,
         // roughness: 0.05,
