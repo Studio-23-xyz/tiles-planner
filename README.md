@@ -8,16 +8,15 @@ Tiles planner (https://abc.com/) is an extension/website to visualize and explor
 ## Documentation
 See more information in the [Developer Documentation](https://abc.com/).
 
-## Supported file formats
-   * Any picture format.
+## Supported platforms
+   * Any JavaScript based websites.
 
 ## Features
 
-- Select room
 - Choose Tiles
 - Change Tiles applying angle
 - Rotate room  in 360 degree
-- Zoomin/Zoomout of view
+- Zoom In/Zoom Out of view
 - Select tiles for walls and floor indivisualy
 - Change the color of ceiling
 - Export view as PDF or JPG
