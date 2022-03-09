@@ -4,12 +4,15 @@ import { OrbitControls } from "https://cdn.jsdelivr.net/npm/three@0.121.1/exampl
 
 import { GLTFLoader } from "./files/Loader.js";
 import { FBXLoader } from "./files/Loader.js";
-import { OBJLoader } from "./files/Loader.js";
 import { Reflector } from "./files/Reflector.js";
-import { PointerLockControls } from "./files/PointerLockControls.js";
-import { RGBELoader } from "https://cdn.jsdelivr.net/gh/mrdoob/three.js@dev/examples/jsm/loaders/RGBELoader.js";
+import { EffectComposer } from 'https://cdn.jsdelivr.net/gh/mrdoob/three.js@dev/examples/jsm/postprocessing/EffectComposer.js';
+import { RenderPass } from 'https://cdn.jsdelivr.net/gh/mrdoob/three.js@dev/examples/jsm/postprocessing/RenderPass.js';
+import { SAOPass } from 'https://cdn.jsdelivr.net/gh/mrdoob/three.js@dev/examples/jsm/postprocessing/SAOPass.js';
+import { GUI } from 'https://cdn.jsdelivr.net/gh/mrdoob/three.js@dev/examples/jsm/libs/lil-gui.module.min.js';
 
 //console.log(ARButton);
+let composer, renderPass, saoPass;
+
 let camera,
     scene,
     renderer,
@@ -50,6 +53,7 @@ let cubeRenderTarget3 = new THREE.WebGLCubeRenderTarget(500, {
 const clock = new THREE.Clock();
 
 let link = "asset/home/testRoom.glb";
+let wallName;
 const clickHandler = (e) => {
     mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
     mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
@@ -57,6 +61,8 @@ const clickHandler = (e) => {
     rayCast.setFromCamera(mouse, camera);
 
     var intersects = rayCast.intersectObjects(scene.children);
+
+    
     // wrapperForFloor
 
     if (checkDrag === false) {
@@ -95,13 +101,17 @@ const clickHandler = (e) => {
         document.querySelector(".wrapperForFloor").style.display = "none";
     }
 
-    textureLink = intersects[intersects.length - 1].object.material.map;
+    // textureLink = intersects[intersects.length - 1].object.material.map;
 
+    
     if (intersects.length > 0) {
         if (INTERSECTED != intersects[intersects.length - 1].object) {
             INTERSECTED = intersects[intersects.length - 1].object;
         }
     }
+    wallName = INTERSECTED.name;
+    // console.log(wallName);
+
 };
 
 //rotation arrow
@@ -160,17 +170,41 @@ let changeTexture = (textureLink) => {
     let x = new THREE.TextureLoader().load(textureLink, function (texture) {
         texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
         texture.offset.set(0, 0);
-        texture.repeat.set(10, 12);
+        texture.repeat.set(16, 12);
         // texture.anisotropy = 46;
     });
     INTERSECTED.material.map = x;
-    INTERSECTED.material.opacity = 0.6;
+    INTERSECTED.material.opacity = 0.68;
 };
-let changeTextureAngel = () => {
+let changeTextureAngel = (textureLink) => {
+    if(angel == 0 ) {
+        INTERSECTED.material.map.repeat.set(16, 12);
+    }
+    else if(angel == 45 ) {
+        INTERSECTED.material.map.repeat.set(12, 16);
+    }
+    else if(angel == 90 ) {
+        INTERSECTED.material.map.repeat.set(8, 32);
+    }
+    else if(angel == 135 ) {
+        INTERSECTED.material.map.repeat.set(12, 16);
+    }
+    else if(angel == 180 ) {
+        INTERSECTED.material.map.repeat.set(16, 12);
+    }
     INTERSECTED.material.map.rotation = THREE.Math.degToRad(angel);
 };
 
+let firstClickCheck = true;
+
 document.getElementById("t1").addEventListener("click", () => {
+    document.getElementById("0").style.background = 'rgba(0, 0, 0, 0.5)';
+    document.getElementById("45").style.background = 'none';
+    document.getElementById("90").style.background = 'none';
+    document.getElementById("135").style.background = 'none';
+    document.getElementById("180").style.background = 'none';
+
+
     document.querySelector(".wrapper").style.right = "-422px";
     document.getElementById("arrowBtn1").classList.add("rotation");
     arrowCheck1 = false;
@@ -179,6 +213,13 @@ document.getElementById("t1").addEventListener("click", () => {
     changeTexture(textureLink);
 });
 document.getElementById("t2").addEventListener("click", () => {
+    document.getElementById("0").style.background = 'rgba(0, 0, 0, 0.5)';
+    document.getElementById("45").style.background = 'none';
+    document.getElementById("90").style.background = 'none';
+    document.getElementById("135").style.background = 'none';
+    document.getElementById("180").style.background = 'none';
+
+
     document.querySelector(".wrapper").style.right = "-422px";
     document.getElementById("arrowBtn1").classList.add("rotation");
     arrowCheck1 = false;
@@ -189,6 +230,14 @@ document.getElementById("t2").addEventListener("click", () => {
 
 //floor texture change event
 document.getElementById("t1Floor").addEventListener("click", () => {
+    document.getElementById("0f").style.background = 'rgba(0, 0, 0, 0.5)';
+    document.getElementById("45f").style.background = 'none';
+    document.getElementById("90f").style.background = 'none';
+    document.getElementById("135f").style.background = 'none';
+    document.getElementById("180f").style.background = 'none';
+    
+    
+    
     document.querySelector(".wrapperForFloor").style.right = "-422px";
     document.getElementById("arrowBtn2").classList.add("rotation");
     arrowCheck2 = false;
@@ -197,6 +246,12 @@ document.getElementById("t1Floor").addEventListener("click", () => {
     changeTexture(textureLink);
 });
 document.getElementById("t2Floor").addEventListener("click", () => {
+    document.getElementById("0f").style.background = 'rgba(0, 0, 0, 0.5)';
+    document.getElementById("45f").style.background = 'none';
+    document.getElementById("90f").style.background = 'none';
+    document.getElementById("135f").style.background = 'none';
+    document.getElementById("180f").style.background = 'none';
+    
     document.querySelector(".wrapperForFloor").style.right = "-422px";
     document.getElementById("arrowBtn2").classList.add("rotation");
     arrowCheck2 = false;
@@ -206,6 +261,12 @@ document.getElementById("t2Floor").addEventListener("click", () => {
 });
 
 document.getElementById("0").addEventListener("click", () => {
+    document.getElementById("0").style.background = 'rgba(0, 0, 0, 0.5)';
+    document.getElementById("45").style.background = 'none';
+    document.getElementById("90").style.background = 'none';
+    document.getElementById("135").style.background = 'none';
+    document.getElementById("180").style.background = 'none';
+
     document.querySelector(".wrapper").style.right = "-422px";
     document.getElementById("arrowBtn1").classList.add("rotation");
     arrowCheck1 = false;
@@ -215,6 +276,12 @@ document.getElementById("0").addEventListener("click", () => {
 });
 
 document.getElementById("45").addEventListener("click", () => {
+    document.getElementById("0").style.background = 'none';
+    document.getElementById("45").style.background = 'rgba(0, 0, 0, 0.5)';
+    document.getElementById("90").style.background = 'none';
+    document.getElementById("135").style.background = 'none';
+    document.getElementById("180").style.background = 'none';
+
     document.querySelector(".wrapper").style.right = "-422px";
     document.getElementById("arrowBtn1").classList.add("rotation");
     arrowCheck1 = false;
@@ -223,6 +290,12 @@ document.getElementById("45").addEventListener("click", () => {
     changeTextureAngel(textureLink);
 });
 document.getElementById("90").addEventListener("click", () => {
+    document.getElementById("0").style.background = 'none';
+    document.getElementById("45").style.background = 'none';
+    document.getElementById("90").style.background = 'rgba(0, 0, 0, 0.5)';
+    document.getElementById("135").style.background = 'none';
+    document.getElementById("180").style.background = 'none';
+
     document.querySelector(".wrapper").style.right = "-422px";
     document.getElementById("arrowBtn1").classList.add("rotation");
     arrowCheck1 = false;
@@ -231,6 +304,12 @@ document.getElementById("90").addEventListener("click", () => {
     changeTextureAngel(textureLink);
 });
 document.getElementById("135").addEventListener("click", () => {
+    document.getElementById("0").style.background = 'none';
+    document.getElementById("45").style.background = 'none';
+    document.getElementById("90").style.background = 'none';
+    document.getElementById("135").style.background = 'rgba(0, 0, 0, 0.5)';
+    document.getElementById("180").style.background = 'none';
+
     document.querySelector(".wrapper").style.right = "-422px";
     document.getElementById("arrowBtn1").classList.add("rotation");
     arrowCheck1 = false;
@@ -239,6 +318,13 @@ document.getElementById("135").addEventListener("click", () => {
     changeTextureAngel(textureLink);
 });
 document.getElementById("180").addEventListener("click", () => {
+
+    document.getElementById("0").style.background = 'none';
+    document.getElementById("45").style.background = 'none';
+    document.getElementById("90").style.background = 'none';
+    document.getElementById("135").style.background = 'none';
+    document.getElementById("180").style.background = 'rgba(0, 0, 0, 0.5)';
+
     document.querySelector(".wrapper").style.right = "-422px";
     document.getElementById("arrowBtn1").classList.add("rotation");
     arrowCheck1 = false;
@@ -249,6 +335,13 @@ document.getElementById("180").addEventListener("click", () => {
 
 //angle for floor
 document.getElementById("0f").addEventListener("click", () => {
+    document.getElementById("0f").style.background = 'rgba(0, 0, 0, 0.5)';
+    document.getElementById("45f").style.background = 'none';
+    document.getElementById("90f").style.background = 'none';
+    document.getElementById("135f").style.background = 'none';
+    document.getElementById("180f").style.background = 'none';
+
+
     document.querySelector(".wrapperForFloor").style.right = "-422px";
     document.getElementById("arrowBtn2").classList.add("rotation");
     arrowCheck2 = false;
@@ -258,6 +351,13 @@ document.getElementById("0f").addEventListener("click", () => {
 });
 
 document.getElementById("45f").addEventListener("click", () => {
+    document.getElementById("0f").style.background = 'none';
+    document.getElementById("45f").style.background = 'rgba(0, 0, 0, 0.5)';
+    document.getElementById("90f").style.background = 'none';
+    document.getElementById("135f").style.background = 'none';
+    document.getElementById("180f").style.background = 'none';
+
+
     document.querySelector(".wrapperForFloor").style.right = "-422px";
     document.getElementById("arrowBtn2").classList.add("rotation");
     arrowCheck2 = false;
@@ -266,6 +366,12 @@ document.getElementById("45f").addEventListener("click", () => {
     changeTextureAngel(textureLink);
 });
 document.getElementById("90f").addEventListener("click", () => {
+    document.getElementById("0f").style.background = 'none';
+    document.getElementById("45f").style.background = 'none';
+    document.getElementById("90f").style.background = 'rgba(0, 0, 0, 0.5)';
+    document.getElementById("135f").style.background = 'none';
+    document.getElementById("180f").style.background = 'none';
+
     document.querySelector(".wrapperForFloor").style.right = "-422px";
     document.getElementById("arrowBtn2").classList.add("rotation");
     arrowCheck2 = false;
@@ -274,6 +380,12 @@ document.getElementById("90f").addEventListener("click", () => {
     changeTextureAngel(textureLink);
 });
 document.getElementById("135f").addEventListener("click", () => {
+    document.getElementById("0f").style.background = 'none';
+    document.getElementById("45f").style.background = 'none';
+    document.getElementById("90f").style.background = 'none';
+    document.getElementById("135f").style.background = 'rgba(0, 0, 0, 0.5)';
+    document.getElementById("180f").style.background = 'none';
+
     document.querySelector(".wrapperForFloor").style.right = "-422px";
     document.getElementById("arrowBtn2").classList.add("rotation");
     arrowCheck2 = false;
@@ -282,6 +394,12 @@ document.getElementById("135f").addEventListener("click", () => {
     changeTextureAngel(textureLink);
 });
 document.getElementById("180f").addEventListener("click", () => {
+    document.getElementById("0f").style.background = 'none';
+    document.getElementById("45f").style.background = 'none';
+    document.getElementById("90f").style.background = 'none';
+    document.getElementById("135f").style.background = 'none';
+    document.getElementById("180f").style.background = 'rgba(0, 0, 0, 0.5)';
+
     document.querySelector(".wrapperForFloor").style.right = "-422px";
     document.getElementById("arrowBtn2").classList.add("rotation");
     arrowCheck2 = false;
@@ -418,16 +536,22 @@ function init() {
 
     scene.add(DirectionalLightbt);
 
-    const pointLight1 = new THREE.PointLight(0xffffff, 0.4, 60);
-    pointLight1.position.set(-40, 13, -56);
+
+    const pointLight1 = new THREE.PointLight(0xffffff, 1, 50);
+    pointLight1.position.set(-45, 13, -56);
     scene.add(pointLight1);
 
-    const pointLight = new THREE.PointLight(0xffffff, 0.4, 60);
-    pointLight.position.set(40, 13, -56);
+    const pointLight = new THREE.PointLight(0xffffff, 1, 50);
+    pointLight.position.set(45, 13, -56);
     scene.add(pointLight);
+
     const pointLight2 = new THREE.PointLight(0xffffff, 2, 50);
     pointLight2.position.set(0, 0, -10);
     scene.add(pointLight2);
+
+    const pointLight3 = new THREE.PointLight(0xffffff, 1, 80);
+    pointLight3.position.set(0, -10, -56);
+    scene.add(pointLight3);
 
     // let DirectionalLightside2 = new THREE.DirectionalLight(0xffffff, 1);
     // DirectionalLightside2.position.set(0, 0, 100);
@@ -458,18 +582,52 @@ function init() {
     const GLTFloader = new GLTFLoader();
     const FBXloader = new FBXLoader();
 
+
+    // GLTFloader.load("asset/test/scene.gltf", function (gltf) {
+    //     obj = gltf.scene;
+    //     var bbox = new THREE.Box3().setFromObject(obj);
+    //     var size = bbox.getSize(new THREE.Vector3());
+
+    //     var maxAxis = Math.max(size.x, size.y, size.z);
+    //     // console.log(maxAxis);
+    //     obj.position.set(70, -13, 20);
+    //     obj.rotation.set(0, - Math.PI / 2, 0);
+
+    //     obj.scale.multiplyScalar(50 / maxAxis);
+
+    //     //   console.log('ssss');
+
+    //     scene.add(obj);
+    // });
+    
+
     GLTFloader.load("asset/bed/scene.gltf", function (gltf) {
         obj = gltf.scene;
-        console.log(gltf);
         var bbox = new THREE.Box3().setFromObject(obj);
         var size = bbox.getSize(new THREE.Vector3());
 
         var maxAxis = Math.max(size.x, size.y, size.z);
         // console.log(maxAxis);
-        obj.position.set(0, -30, -45);
-        // obj.rotation.set(0, Math.PI / 2, 0);
+        obj.position.set(0, -30, -90);
+        // obj.rotation.set(0, - Math.PI / 2, 0);
 
         obj.scale.multiplyScalar(90 / maxAxis);
+
+        //   console.log('ssss');
+
+        scene.add(obj);
+    });
+    GLTFloader.load("asset/tv/scene.gltf", function (gltf) {
+        obj = gltf.scene;
+        var bbox = new THREE.Box3().setFromObject(obj);
+        var size = bbox.getSize(new THREE.Vector3());
+
+        var maxAxis = Math.max(size.x, size.y, size.z);
+        // console.log(maxAxis);
+        obj.position.set(0, -12, -90);
+        // obj.rotation.set(0, Math.PI, 0);
+
+        obj.scale.multiplyScalar(40 / maxAxis);
 
         //   console.log('ssss');
 
@@ -479,7 +637,6 @@ function init() {
     //chair
     GLTFloader.load("asset/home/SheenChair.glb", function (gltf) {
         obj = gltf.scene;
-        console.log(gltf);
         var bbox = new THREE.Box3().setFromObject(obj);
         var size = bbox.getSize(new THREE.Vector3());
 
@@ -501,7 +658,6 @@ function init() {
     //wallpaper
     GLTFloader.load("asset/home/wallpaper/scene.gltf", function (gltf) {
         obj = gltf.scene;
-        console.log(gltf);
         var bbox = new THREE.Box3().setFromObject(obj);
         var size = bbox.getSize(new THREE.Vector3());
 
@@ -520,7 +676,6 @@ function init() {
     //light1
     GLTFloader.load("asset/home/lamp/scene.gltf", function (gltf) {
         obj = gltf.scene;
-        console.log(gltf);
         var bbox = new THREE.Box3().setFromObject(obj);
         var size = bbox.getSize(new THREE.Vector3());
 
@@ -537,7 +692,6 @@ function init() {
     //light2
     GLTFloader.load("asset/home/lamp/scene.gltf", function (gltf) {
         obj = gltf.scene;
-        console.log(gltf);
         var bbox = new THREE.Box3().setFromObject(obj);
         var size = bbox.getSize(new THREE.Vector3());
 
@@ -556,16 +710,17 @@ function init() {
 
     GLTFloader.load("asset/shelf/scene.gltf", function (gltf) {
         obj = gltf.scene;
-        console.log(gltf);
+        console.log(obj);
         var bbox = new THREE.Box3().setFromObject(obj);
         var size = bbox.getSize(new THREE.Vector3());
 
         var maxAxis = Math.max(size.x, size.y, size.z);
         // console.log(maxAxis);
-        obj.position.set(-88, 0, 0);
-        obj.rotation.set(0, Math.PI / 2, 0);
+        obj.position.set(-99, 0, -25);
+        obj.rotation.set(0, -Math.PI, 0);
+        
 
-        obj.scale.multiplyScalar(30 / maxAxis);
+        obj.scale.multiplyScalar(65 / maxAxis);
 
         //   console.log('ssss');
 
@@ -607,9 +762,10 @@ function init() {
 
     material1 = new THREE.MeshBasicMaterial({
         transparent: true,
-        color: "#e6eaed",
+        aoMapIntensity: 0.35,
+        aoMap: new THREE.TextureLoader().load("/texture/a.jpg"),
         opacity: 0.65,
-
+        
         side: THREE.DoubleSide,
         map: new THREE.TextureLoader().load(
             "/texture/testTexture.jpeg",
@@ -654,7 +810,7 @@ function init() {
     mesh = new THREE.Mesh(
         geometry,
         new THREE.MeshStandardMaterial({
-            color: "white",
+            
             side: THREE.BackSide,
             //belkuni
             map: new THREE.TextureLoader().load("/texture/belkony.jpg"),
@@ -684,9 +840,10 @@ function init() {
     scene.add(rightMirror);
 
     material2 = new THREE.MeshLambertMaterial({
-        color: '#e4e9f2',
         transparent: true,
         opacity: 0.65,
+        aoMapIntensity: 0.3,
+        aoMap: new THREE.TextureLoader().load("/texture/a.jpg"),
         // reflectivity: 0.1,
         // roughness: 0.05,
         // metalness: 0.5,
@@ -726,7 +883,8 @@ function init() {
     scene.add(leftMirror);
 
     material1 = new THREE.MeshLambertMaterial({
-        color: '#e4e9f2',
+        aoMapIntensity: 0.3,
+        aoMap: new THREE.TextureLoader().load("/texture/a.jpg"),
         transparent: true,
         opacity: 0.65,
         // roughness: 0.05,
@@ -752,7 +910,15 @@ function init() {
 
     scene.add(wallLeft);
 
-    const box = new THREE.Box3().setFromObject(mesh);
+    //light 2
+    let DirectionalLight = new THREE.DirectionalLight(0xffffff, 0.2);
+    DirectionalLight.position.set(-10, 0, 0);
+
+    scene.add(DirectionalLight);
+    let DirectionalLight2 = new THREE.DirectionalLight(0xffffff, 0.2);
+    DirectionalLight2.position.set(10, 0, 0);
+
+    scene.add(DirectionalLight2);
 
     //setup orbit controller
     controls = new OrbitControls(camera, renderer.domElement);
@@ -870,6 +1036,7 @@ function render() {
         controls.minPolarAngle = Math.PI / 3.5; // radians
         controls.maxPolarAngle = (2 * Math.PI) / 3.4;
     }
+
 
     renderer.render(scene, camera);
 }

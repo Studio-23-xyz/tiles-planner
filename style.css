@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai+Looped:wght@100;300&family=Poppins:wght@200&display=swap');
+
 *{
     margin: 0;
     padding: 0;
@@ -11,13 +13,29 @@ body{
 
 .wrapper, .wrapperForFloor{
     position: absolute;
-    background: rgba(255, 255, 255, 0.9);
+    background: rgba(255, 255, 255, 0.97);
     font-size: 25px;
     top: 5%;
     display: none;
     transition: .5s ease;
     max-height: 100vh;
 }
+.headingForPopUp{
+    padding: 10px;
+}
+.tilesWrapper{
+    display: flex;
+    align-items: center;
+    padding: 5px;
+    border-radius: 5px;
+}
+.zero{
+    background: rgba(0, 0, 0, 0.5);
+}
+.angelUnit{
+    border-radius: 2px;
+}
+
 #arrowBtn1{
     border: none;
     position: absolute;
@@ -40,6 +58,7 @@ body{
     border-radius: 2px;
 }
 .wrapperForselling{
+    
     display: none;
     position: absolute;
     /* display: flex; */
