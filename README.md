@@ -24,4 +24,4 @@ See more information in the [Developer Documentation](https://abc.com/).
  
 
 ## Libraries used
-Tiles Planner uses worderful javascript library named [hree.js](https://abc.com).
+Tiles Planner uses worderful javascript library named [three.js](https://abc.com).
