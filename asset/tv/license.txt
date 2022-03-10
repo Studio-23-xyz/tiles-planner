@@ -1,0 +1,11 @@
+Model Information:
+* title:	Samsung 65" QLED 4K Curved Smart TV (Q8C)
+* source:	https://sketchfab.com/3d-models/samsung-65-qled-4k-curved-smart-tv-q8c-57cf6ee06a7949d5b0746716977eb08f
+* author:	iSteven (https://sketchfab.com/Steven007)
+
+Model License:
+* license type:	CC-BY-NC-SA-4.0 (http://creativecommons.org/licenses/by-nc-sa/4.0/)
+* requirements:	Author must be credited. No commercial use. Modified versions must have the same license.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Samsung 65" QLED 4K Curved Smart TV (Q8C)" (https://sketchfab.com/3d-models/samsung-65-qled-4k-curved-smart-tv-q8c-57cf6ee06a7949d5b0746716977eb08f) by iSteven (https://sketchfab.com/Steven007) licensed under CC-BY-NC-SA-4.0 (http://creativecommons.org/licenses/by-nc-sa/4.0/)
