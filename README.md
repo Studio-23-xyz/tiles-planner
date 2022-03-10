@@ -3,10 +3,10 @@ Tiles planner (https://abc.com/) is an extension/website to visualize and explor
 ## Example
 ![preview picture](https://raw.githubusercontent.com/Siam456/room-viewer-test/master/preview.png?token=GHSAT0AAAAAABSDB23D2K6I6ULS6SDWUHBMYRJWPUQ)
 
-[Check the live version!](https://abc.com/)
+[Check the live version!](https://studio-23.xyz/)
 
 ## Documentation
-See more information in the [Developer Documentation](https://abc.com/).
+See more information in the [Developer Documentation](https://studio-23.xyz/).
 
 ## Supported platforms
    * Any JavaScript based websites.
@@ -23,4 +23,4 @@ See more information in the [Developer Documentation](https://abc.com/).
  
 
 ## Libraries used
-Tiles Planner uses worderful javascript library named [three.js](https://abc.com).
+Tiles Planner uses worderful javascript library named [three.js](https://threejs.org/).
