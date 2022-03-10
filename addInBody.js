@@ -302,14 +302,8 @@ document.head.appendChild(styleSheet);
 import * as THREE from "three";
 import { OrbitControls } from "https://cdn.jsdelivr.net/npm/three@0.121.1/examples/jsm/controls/OrbitControls.js";
 
-import { GLTFLoader } from "./files/Loader.js";
-import { FBXLoader } from "./files/Loader.js";
-import { Reflector } from "./files/Reflector.js";
-import { EffectComposer } from 'https://cdn.jsdelivr.net/gh/mrdoob/three.js@dev/examples/jsm/postprocessing/EffectComposer.js';
-import { RenderPass } from 'https://cdn.jsdelivr.net/gh/mrdoob/three.js@dev/examples/jsm/postprocessing/RenderPass.js';
-import { SAOPass } from 'https://cdn.jsdelivr.net/gh/mrdoob/three.js@dev/examples/jsm/postprocessing/SAOPass.js';
-import { GUI } from 'https://cdn.jsdelivr.net/gh/mrdoob/three.js@dev/examples/jsm/libs/lil-gui.module.min.js';
-
+import { GLTFLoader } from "https://cdn.jsdelivr.net/gh/mrdoob/three.js@dev/examples/jsm/loaders/GLTFLoader.js";
+import { Reflector } from "https://cdn.jsdelivr.net/gh/mrdoob/three.js@dev/examples/jsm/objects/Reflector.js";
 //console.log(ARButton);
 let composer, renderPass, saoPass;
 
