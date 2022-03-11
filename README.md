@@ -1,7 +1,7 @@
 Tiles planner is an extension/website to visualize and explore your room decoration after using your preferred tiles on the walls and floor and changing the ceiling color right in your browser.
 
 ## Example
-![preview picture](https://raw.githubusercontent.com/Siam456/room-viewer-test/master/preview.png?token=GHSAT0AAAAAABSDB23D2K6I6ULS6SDWUHBMYRJWPUQ)
+![preview picture](https://raw.githubusercontent.com/Studio-23-xyz/tiles-planner/preview.png)
 
 [Check the live version!](https://studio-23.xyz/)
 
